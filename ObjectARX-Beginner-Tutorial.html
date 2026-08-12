@@ -1,0 +1,2859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ObjectARX for Beginners — AutoCAD 2027 / Visual Studio 2026</title>
+<style>
+  :root{
+    /* Autodesk brand: Black/White primary, Slate/Warm Slate secondary,
+       Twilight (tertiary) as the single functional accent. */
+    --bg:#ffffff; --fg:#000000; --muted:#666666; --border:#d5d5cb;
+    --accent:#11577d; --accent-fill:#11577d; --accent-ink:#ffffff; --link:#11577d;
+    --code-bg:#f4f4f0; --code-fg:#000000; --alt:#f7f7f3;
+    --tip-bg:#eaf3f8; --tip-bd:#1d91d0; --warn-bg:#fdece0; --warn-bd:#f2520a;
+    --shot-bg:#f4f4f0; --shot-bd:#c9c7bd; --sidebar-bg:#f7f7f3;
+    --kw:#0000ff; --cm:#008000; --str:#a31515;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#000000; --fg:#ffffff; --muted:#a9a89e; --border:#3a392f;
+      --accent:#5fc3ea; --accent-fill:#1d91d0; --accent-ink:#0b0b0a; --link:#5fc3ea;
+      --code-bg:#1c1c18; --code-fg:#ffffff; --alt:#171612;
+      --tip-bg:#07283a; --tip-bd:#1d91d0; --warn-bg:#3a2210; --warn-bd:#f2520a;
+      --shot-bg:#1c1c18; --shot-bd:#514f43; --sidebar-bg:#141412;
+      --kw:#569cd6; --cm:#6a9955; --str:#ce9178;
+    }
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    line-height:1.65;font-size:16px;}
+  a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;}
+
+  /* Layout: sidebar + content */
+  .layout{display:flex;align-items:flex-start;max-width:1200px;margin:0 auto;}
+  nav.toc{position:sticky;top:0;align-self:flex-start;flex:0 0 268px;height:100vh;
+    overflow-y:auto;background:var(--sidebar-bg);border-right:1px solid var(--border);
+    padding:20px 16px;font-size:.9rem;}
+  nav.toc .brand{font-weight:700;color:var(--accent);font-size:1rem;margin-bottom:4px;}
+  nav.toc .sub{color:var(--muted);font-size:.78rem;margin-bottom:16px;}
+  nav.toc a{display:block;color:var(--fg);padding:3px 8px;border-radius:6px;}
+  nav.toc a:hover{background:rgba(128,128,128,.14);text-decoration:none;}
+  nav.toc .group{font-weight:700;color:var(--accent);margin:14px 0 4px;font-size:.82rem;
+    text-transform:uppercase;letter-spacing:.03em;}
+  nav.toc a.child{padding-left:20px;color:var(--muted);font-size:.86rem;}
+  main{flex:1 1 auto;min-width:0;padding:0 40px 100px;max-width:900px;}
+
+  /* CHM-style heading band — Autodesk Black, fixed regardless of theme,
+     with a Twilight accent rule so it reads in both light and dark mode. */
+  .band{background:#000;color:#fff;margin:0 -40px 22px;padding:26px 40px 22px;
+    border-bottom:3px solid #1d91d0;}
+  .band h1{margin:0;font-size:1.7rem;font-weight:600;color:#fff;}
+  .band .kicker{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:#1d91d0;}
+
+  h2{color:var(--accent);font-size:1.35rem;border-bottom:2px solid var(--border);
+    padding-bottom:.25em;margin-top:2.4em;}
+  h3{font-size:1.08rem;margin-top:1.8em;}
+  p,li{color:var(--fg);}
+  blockquote{margin:1em 0;padding:.3em 1em;border-left:.25em solid var(--border);color:var(--muted);}
+
+  code{background:var(--code-bg);padding:.15em .4em;border-radius:6px;
+    font-family:Consolas,"SF Mono",Menlo,"Courier New",monospace;font-size:.88em;
+    font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;}
+  pre{background:var(--code-bg);color:var(--code-fg);border:1px solid var(--border);
+    border-radius:8px;padding:14px 16px;overflow-x:auto;line-height:1.5;
+    font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;}
+  pre code{background:none;padding:0;font-size:.85em;}
+  pre .kw{color:var(--kw);} pre .cm{color:var(--cm);} pre .str{color:var(--str);}
+
+  .code-block{position:relative;}
+  .code-block pre{margin:0;padding-right:80px;}
+  .copy-btn{position:absolute;top:10px;right:10px;background:var(--accent-fill);color:var(--accent-ink);border:none;
+    border-radius:6px;padding:4px 10px;font-size:.75rem;line-height:1.4;cursor:pointer;opacity:.85;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;}
+  .copy-btn:hover{opacity:1;}
+  .copy-btn.copied{background:#2da44e;color:#fff;}
+
+  table{border-collapse:collapse;width:100%;margin:1.1em 0;display:block;overflow-x:auto;}
+  th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;vertical-align:top;}
+  th{background:var(--alt);color:var(--accent);}
+  tr:nth-child(even) td{background:var(--alt);}
+
+  .callout{border-radius:8px;padding:12px 16px;margin:1.2em 0;border:1px solid;}
+  .tip{background:var(--tip-bg);border-color:var(--tip-bd);}
+  .warn{background:var(--warn-bg);border-color:var(--warn-bd);}
+  .callout p{margin:.3em 0;} .callout .lbl{font-weight:700;}
+
+  hr{border:none;border-top:1px solid var(--border);margin:2.4em 0;}
+  .next{background:var(--alt);border:1px solid var(--border);border-radius:8px;
+    padding:10px 14px;margin-top:1.6em;font-size:.95rem;}
+
+  /* Screenshot slots */
+  figure.shot{margin:1.5em 0;text-align:center;}
+  figure.shot img{max-width:100%;border:1px solid var(--border);border-radius:8px;}
+  .shot-placeholder{display:none;flex-direction:column;align-items:center;justify-content:center;
+    gap:6px;min-height:140px;background:var(--shot-bg);border:2px dashed var(--shot-bd);
+    border-radius:8px;color:var(--muted);padding:18px;font-size:.9rem;}
+  .shot-placeholder .cam{font-size:1.5rem;}
+  .shot-placeholder code{background:var(--bg);}
+  figure.shot figcaption{color:var(--muted);font-size:.85rem;margin-top:.5em;font-style:italic;}
+  .badge{display:inline-block;background:var(--accent-fill);color:var(--accent-ink);border-radius:4px;
+    padding:0 6px;font-size:.72rem;margin-right:6px;vertical-align:middle;}
+  .fig{font-weight:700;color:var(--accent);font-size:.85rem;}
+
+  @media (max-width:820px){
+    .layout{flex-direction:column;}
+    nav.toc{position:static;height:auto;width:100%;flex-basis:auto;border-right:none;
+      border-bottom:1px solid var(--border);}
+    main{padding:0 20px 60px;}
+    .band{margin:0 -20px 20px;padding:22px 20px;}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="toc">
+  <div class="brand">ObjectARX for Beginners</div>
+  <div class="sub">AutoCAD 2027 · Visual Studio 2026</div>
+  <a href="#intro">Introduction</a>
+  <a href="#setup">Getting Set Up — Downloads</a>
+
+  <div class="group">Lesson 1 — From Scratch</div>
+  <a class="child" href="#l1-intro">Overview</a>
+  <a class="child" href="#l1-project">1. Create the project</a>
+  <a class="child" href="#l1-compiler">2. Compiler settings</a>
+  <a class="child" href="#l1-linker">3. Linker settings</a>
+  <a class="child" href="#l1-code">4. Add the code</a>
+  <a class="child" href="#l1-def">5. The .def file</a>
+  <a class="child" href="#l1-run">6. Build &amp; run</a>
+
+  <div class="group">Lesson 2 — With Claude Code</div>
+  <a class="child" href="#l2-intro">Overview</a>
+  <a class="child" href="#l2-claude">1. What is Claude Code</a>
+  <a class="child" href="#l2-skill">2. Get the wizard skill</a>
+  <a class="child" href="#l2-create">3. Scaffold the project</a>
+  <a class="child" href="#l2-more">4. What the skill adds</a>
+  <a class="child" href="#l2-addons">5. Add-on class wizards</a>
+  <a class="child" href="#l2-run">6. Build &amp; run</a>
+
+  <div class="group">Lesson 3 — Input &amp; Selection</div>
+  <a class="child" href="#l3-intro">Overview</a>
+  <a class="child" href="#l3-add">1. Add the two commands</a>
+  <a class="child" href="#l3-input">2. The MYINPUT command</a>
+  <a class="child" href="#l3-select">3. The MYSELECT command</a>
+  <a class="child" href="#l3-run">4. Build &amp; test</a>
+
+  <div class="group">Lesson 4 — Symbol Tables</div>
+  <a class="child" href="#l4-intro">Overview</a>
+  <a class="child" href="#l4-project">1. Template project (skill)</a>
+  <a class="child" href="#l4-utils">2. Utility functions</a>
+  <a class="child" href="#l4-cmds">3. CREATE &amp; SETLAYER</a>
+  <a class="child" href="#l4-run">4. Build &amp; test</a>
+
+  <div class="group">Lesson 5 — Dictionaries &amp; Xrecords</div>
+  <a class="child" href="#l5-intro">Overview</a>
+  <a class="child" href="#l5-project">1. Template project (skill)</a>
+  <a class="child" href="#l5-cmds">2. The three commands</a>
+  <a class="child" href="#l5-run">3. Build &amp; test</a>
+
+  <div class="group">Lesson 6 — Custom Objects</div>
+  <a class="child" href="#l6-intro">Overview</a>
+  <a class="child" href="#l6-dbxproj">1. Create the DBX project</a>
+  <a class="child" href="#l6-class">2. The custom object class</a>
+  <a class="child" href="#l6-members">3. Members &amp; accessors</a>
+  <a class="child" href="#l6-register">4. Register &amp; build the DBX</a>
+  <a class="child" href="#l6-cmds">5. The ARX commands</a>
+  <a class="child" href="#l6-load">6. Load the DBX</a>
+  <a class="child" href="#l6-run">7. Build &amp; test</a>
+
+  <div class="group">Lesson 7 — Custom Entities</div>
+  <a class="child" href="#l7-intro">Overview</a>
+  <a class="child" href="#l7-dbxproj">1. Create the DBX project</a>
+  <a class="child" href="#l7-class">2. The custom entity class</a>
+  <a class="child" href="#l7-members">3. Members &amp; accessors</a>
+  <a class="child" href="#l7-worlddraw">4. worldDraw() &amp; the constructor</a>
+  <a class="child" href="#l7-register">5. Register &amp; build the DBX</a>
+  <a class="child" href="#l7-cmds">6. The CREATEEMPLOYEE command</a>
+  <a class="child" href="#l7-load">7. Load the DBX</a>
+  <a class="child" href="#l7-run">8. Build &amp; test</a>
+
+  <div class="group">Lesson 8 — Transient Reactors</div>
+  <a class="child" href="#l8-intro">Overview</a>
+  <a class="child" href="#l8-docdata">1. Project &amp; document data</a>
+  <a class="child" href="#l8-edreactor">2. The editor reactor</a>
+  <a class="child" href="#l8-objreactor">3. The object reactor</a>
+  <a class="child" href="#l8-utility">4. Attach/detach utilities</a>
+  <a class="child" href="#l8-dbreactor">5. The database reactor</a>
+  <a class="child" href="#l8-run">6. Build &amp; test</a>
+
+  <a href="#trouble" style="margin-top:14px;">Troubleshooting</a>
+</nav>
+
+<main>
+
+<!-- ============ INTRODUCTION ============ -->
+<section id="intro">
+<div class="band">
+  <div class="kicker">ObjectARX Training</div>
+  <h1>Introduction</h1>
+</div>
+
+<p>Welcome! This tutorial teaches you how to write your first <strong>ObjectARX</strong> plug-in for
+AutoCAD — twice.</p>
+
+<div class="callout tip">
+<p><span class="lbl">What is ObjectARX?</span> It is the C++ toolkit (SDK) for building programs that
+run <em>inside</em> AutoCAD. A finished plug-in is an <code>.arx</code> file — really a Windows DLL with a
+different extension. AutoCAD loads it, and your code can add commands, draw objects, and react to
+what the user does.</p>
+</div>
+
+<p>You'll do the same small task two ways, so you understand both the <em>fundamentals</em> and the
+<em>fast path</em>:</p>
+<ul>
+<li><strong>Lesson 1 — From scratch.</strong> You set up an empty C++ project by hand and wire up every
+setting yourself. This is slower, but it shows you exactly what an ObjectARX project <em>is</em>.</li>
+<li><strong>Lesson 2 — With Claude Code.</strong> You use an AI assistant and a ready-made "wizard skill"
+to generate the same kind of project in seconds — then focus on your code instead of the plumbing.</li>
+</ul>
+
+<p>Both lessons end the same way: you type a command in AutoCAD and see a message appear. Start by
+installing the tools.</p>
+</section>
+
+<!-- ============ SETUP / DOWNLOADS ============ -->
+<section id="setup">
+<div class="band">
+  <div class="kicker">Before you begin</div>
+  <h1>Getting Set Up — What to Download</h1>
+</div>
+
+<p>You need three things installed. Install them in this order.</p>
+
+<h3>1. AutoCAD 2027</h3>
+<p>The host program your plug-in runs inside. Download and install it from your Autodesk account
+(<a href="https://manage.autodesk.com">manage.autodesk.com</a>), or get a free version through the
+<a href="https://www.autodesk.com/education/edu-software/overview">Autodesk Education</a> program if you
+are a student or educator. AutoCAD is <strong>64-bit only</strong> — there has been no 32-bit AutoCAD
+since 2020.</p>
+
+<h3>2. The ObjectARX 2027 SDK</h3>
+<p>This is the free package of C++ header files (<code>.h</code>) and libraries (<code>.lib</code>) you
+build against. Get it from the Autodesk Platform Services developer page for AutoCAD:
+<a href="https://aps.autodesk.com/developer/overview/autocad">aps.autodesk.com/developer/overview/autocad</a>.
+Go to the APIs section and click on the <a href="https://aps.autodesk.com/developer/overview/objectarx-autocad-sdk">ObjectARX SDK</a> hyperlink, 
+click on "View license agreement" and proceed with further steps. Unzip it to a simple path with no spaces, for example <code>C:\ObjectARX 2027\</code>. 
+Remember this
+location — you'll point Visual Studio at it.</p>
+
+<div class="callout tip">
+<p><span class="lbl">Tip.</span> Inside the SDK you'll mainly use two folders: <code>inc</code> (and
+<code>inc-x64</code>) for headers, and <code>lib-x64</code> for libraries.</p>
+</div>
+
+<h3>3. Visual Studio 2026</h3>
+<p>The editor and C++ compiler (the "IDE"). The free
+<a href="https://visualstudio.microsoft.com/">Community edition</a> is fine. During installation, tick
+the <strong>"Desktop development with C++"</strong> workload — that's the part that gives you the C++
+compiler ObjectARX needs.</p>
+
+<table>
+<thead><tr><th>Tool</th><th>Why you need it</th></tr></thead>
+<tbody>
+<tr><td>AutoCAD 2027 (64-bit)</td><td>Runs your finished plug-in</td></tr>
+<tr><td>ObjectARX 2027 SDK</td><td>Headers + libraries you compile against</td></tr>
+<tr><td>Visual Studio 2026 + "Desktop development with C++"</td><td>Writes and builds the code</td></tr>
+</tbody>
+</table>
+
+<div class="callout tip">
+<p><span class="lbl">Solved projects.</span> A <code>Solutions</code> folder ships alongside this tutorial
+with a finished, working project for every lesson (<code>LessonN_Solved.zip</code>) — handy if you get stuck
+partway through. Each lesson links directly to its own zip near the end of that lesson.</p>
+</div>
+
+<div class="next">▶ Next: <a href="#l1-intro">Lesson 1 — Build an ObjectARX app from scratch</a></div>
+</section>
+
+<!-- ============ LESSON 1 ============ -->
+<section id="l1-intro">
+<div class="band">
+  <div class="kicker">Lesson 1 · No AI, no wizard</div>
+  <h1>Build an ObjectARX App From Scratch</h1>
+</div>
+
+<p>In this lesson you create a new ObjectARX project in Visual Studio 2026 <strong>completely by hand</strong>
+and build your first application. There is no template to start from — you'll do every step yourself, so
+you learn what each piece is for.</p>
+
+<p>The goal is small on purpose: a command called <code>HELLO</code> that prints
+<em>"Hello World!"</em> on the AutoCAD command line.</p>
+
+<div class="callout tip">
+<p><span class="lbl">Why do it by hand first.</span> Doing it once by hand is how the settings "click."
+Lesson 2 shows how the wizard automates all of this for you.</p>
+</div>
+</section>
+
+<section id="l1-project">
+<h2>Step 1 — Create the project</h2>
+<ol>
+<li>In Visual Studio, choose <strong>Create a New Project…</strong></li>
+<li>Search for and select the <strong>"Windows Desktop Wizard"</strong> template (a plain C++ template),
+then click <strong>Next</strong>.</li>
+</ol>
+
+<figure class="shot">
+  <img src="images/l1-01-template.png" alt="Windows Desktop Wizard template" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l1-01-template.png</code></div>
+    <div>The template picker with "Windows Desktop Wizard" selected.</div></div>
+  <figcaption><span class="fig">Lesson 1, Figure 1</span> — Picking the Windows Desktop Wizard template.</figcaption>
+</figure>
+
+<ol start="3">
+<li>Enter a project name — this tutorial uses <strong><code>Step01</code></strong> — pick a location, and click
+<strong>Create</strong>.</li>
+<li>In the "Windows Desktop Project" dialog, set <strong>Application type</strong> to
+<strong>Dynamic Link Library (.dll)</strong>.</li>
+</ol>
+
+<figure class="shot">
+  <img src="images/l1-02-dlltype.png" alt="Windows Desktop Project application type set to DLL" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l1-02-dlltype.png</code></div>
+    <div>The "Windows Desktop Project" dialog with Application type set to Dynamic Link Library (.dll).</div></div>
+  <figcaption><span class="fig">Lesson 1, Figure 2</span> — Setting the application type to DLL.</figcaption>
+</figure>
+
+<ol start="5">
+<li>Leave the other options unticked and click <strong>OK</strong> to create the project.</li>
+</ol>
+
+<p>You now have an empty DLL project. On its own it knows nothing about AutoCAD — the next two steps fix
+that by telling it where the ObjectARX SDK is.</p>
+</section>
+
+<section id="l1-compiler">
+<h2>Step 2 — Compiler settings</h2>
+<p>Open <strong>Solution Explorer</strong> (menu <strong>View → Solution Explorer</strong>, or the
+shortcut <strong>Ctrl+Alt+L</strong>). Select the <code>Step01</code> project, right-click it, and choose
+<strong>Properties</strong> to bring up the project's property pages. At the top, set
+<strong>Configuration</strong> to <strong>All Configurations</strong> so your changes apply to both Debug
+and Release.</p>
+
+<figure class="shot">
+  <img src="images/l1-03-properties.png" alt="Solution Explorer, invoking project properties" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l1-03-properties.png</code></div>
+    <div>Visual Studio Solution Explorer, right-click → Properties on the Step01 project.</div></div>
+  <figcaption><span class="fig">Lesson 1, Figure 3</span> — Opening the project's property pages.</figcaption>
+</figure>
+
+<ol>
+<li><strong>C/C++ → General → Additional Include Directories</strong>: add the SDK's include folders, e.g.
+<code>C:\ObjectARX 2027\inc</code> and <code>C:\ObjectARX 2027\inc-x64</code>. Also set
+<strong>Warning Level</strong> to <strong>Level 1</strong> to hide warnings that don't matter here. Click
+<strong>OK</strong> to apply and close.</li>
+<li><strong>C/C++ → Code Generation → Runtime Library</strong>: choose
+<strong>Multi-threaded DLL (/MD)</strong>.</li>
+<li><strong>C/C++ → Preprocessor → Preprocessor Definitions</strong>: remove the <code>_DEBUG</code>
+symbol if present.</li>
+<li><strong>Configuration Properties → General → Platform Toolset</strong>: select <strong>v145</strong>
+(the toolset that matches Visual Studio 2026 / AutoCAD 2027).</li>
+</ol>
+
+<div class="callout tip">
+<p><span class="lbl">Alternative for the include/library paths.</span> Instead of the Additional Include
+Directories field, you can set the same paths under <strong>Configuration Properties → VC++
+Directories</strong>: use <strong>Include Directories</strong> for the SDK's <code>inc</code> folders and
+<strong>Library Directories</strong> for its <code>lib-x64</code> folder.</p>
+</div>
+
+<div class="callout warn">
+<p><span class="lbl">The most important rule in all of ObjectARX:</span> always use <code>/MD</code>
+(Multi-threaded <em>DLL</em>) — <strong>even in Debug builds</strong>. AutoCAD itself is always a Release
+program, so your plug-in must match it. Using <code>/MDd</code> causes crashes and "heap corruption."
+This is why you remove <code>_DEBUG</code> above.</p>
+</div>
+
+<figure class="shot">
+  <img src="images/l1-04-runtime.png" alt="Runtime library /MD" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l1-04-runtime.png</code></div>
+    <div>Code Generation → Runtime Library set to Multi-threaded DLL (/MD).</div></div>
+  <figcaption><span class="fig">Lesson 1, Figure 4</span> — Setting the include directories.</figcaption>
+</figure>
+
+<figure class="shot">
+  <img src="images/l1-05-toolset.png" alt="Platform Toolset v145" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l1-05-toolset.png</code></div>
+    <div>General → Platform Toolset set to v145.</div></div>
+  <figcaption><span class="fig">Lesson 1, Figure 5</span> — Setting the Platform Toolset.</figcaption>
+</figure>
+</section>
+
+<section id="l1-linker">
+<h2>Step 3 — Linker settings</h2>
+<ol>
+<li><strong>Linker → Input → Additional Dependencies</strong>: add the core ObjectARX libraries:
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>rxapi.lib;acdb26.lib;acge26.lib;acad.lib;ac1st26.lib;accore.lib</code></pre></div></li>
+</ol>
+
+<div class="callout tip">
+<p><span class="lbl">About that "26" in the library names.</span> The number tracks the AutoCAD release
+(2026 → 25, 2027 → 26). If a library name isn't found, open your SDK's <code>lib-x64</code> folder and use
+the exact names you see there.</p>
+</div>
+
+<figure class="shot">
+  <img src="images/l1-06-linklibs.png" alt="Additional dependencies" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l1-06-linklibs.png</code></div>
+    <div>Linker → Input → Additional Dependencies with the ObjectARX libraries.</div></div>
+  <figcaption><span class="fig">Lesson 1, Figure 6</span> — Adding the ObjectARX libraries.</figcaption>
+</figure>
+
+<ol start="2">
+<li><strong>Linker → General → Additional Library Directories</strong>: add the SDK's library folder,
+e.g. <code>C:\ObjectARX 2027\lib-x64</code>.</li>
+<li><strong>Linker → General → Output File</strong> (or <strong>Advanced → Target File Extension</strong>):
+change the output extension from <code>.dll</code> to <strong><code>.arx</code></strong>.</li>
+</ol>
+
+<figure class="shot">
+  <img src="images/l1-07-outputext.png" alt="Output file extension changed to .arx" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l1-07-outputext.png</code></div>
+    <div>Additional Library Directories set, and the output file extension changed from .dll to .arx.</div></div>
+  <figcaption><span class="fig">Lesson 1, Figure 7</span> — Setting the library path and output extension.</figcaption>
+</figure>
+
+<p>Your project settings are now complete. Next, the actual code.</p>
+</section>
+
+<section id="l1-code">
+<h2>Step 4 — Add the code</h2>
+<ol>
+<li>From the <strong>Project</strong> menu, choose <strong>Add New Item…</strong> (shortcut Ctrl+Shift+A).</li>
+<li>In the "Add New Item" dialog, select <strong>C++ File (.cpp)</strong>.</li>
+<li>Enter <strong><code>HelloWorld</code></strong> in the <strong>Name:</strong> box and click
+<strong>Add</strong>.</li>
+</ol>
+
+<figure class="shot">
+  <img src="images/l1-08-addfile.png" alt="Adding HelloWorld.cpp" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l1-08-addfile.png</code></div>
+    <div>The "Add New Item" dialog creating HelloWorld.cpp.</div></div>
+  <figcaption><span class="fig">Lesson 1, Figure 8</span> — Adding HelloWorld.cpp.</figcaption>
+</figure>
+
+<p>First, include the headers you need. <code>aced.h</code> gives access to AutoCAD's editor services;
+<code>rxregsvc.h</code> declares the ObjectARX registration utilities; <code>tchar.h</code> provides the
+<code>_T()</code> text macro:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code><span class="kw">#include</span> <span class="str">"pch.h"</span>
+<span class="kw">#include</span> <span class="str">"tchar.h"</span>
+<span class="kw">#include</span> &lt;aced.h&gt;
+<span class="kw">#include</span> &lt;rxregsvc.h&gt;</code></pre>
+</div>
+
+<p>Declare the three functions you'll write — one to run when AutoCAD loads the app, one when it unloads it,
+and one that does the actual work:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code><span class="kw">void</span> initApp();
+<span class="kw">void</span> unloadApp();
+<span class="kw">void</span> helloWorld();</code></pre>
+</div>
+
+<p><code>initApp()</code> registers a new command with AutoCAD. Registering a command gives AutoCAD a new
+"entry point" into your app — the word the user types:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code><span class="kw">void</span> initApp()
+{
+    <span class="cm">// register a command with the AutoCAD command mechanism</span>
+    acedRegCmds-&gt;addCommand(_T(<span class="str">"HELLOWORLD_COMMANDS"</span>),
+                            _T(<span class="str">"Hello"</span>),      <span class="cm">// global (untranslated) name</span>
+                            _T(<span class="str">"Bonjour"</span>),    <span class="cm">// local (translated) name</span>
+                            ACRX_CMD_TRANSPARENT,
+                            helloWorld);      <span class="cm">// function to call</span>
+}</code></pre>
+</div>
+<p>The arguments are: the command <em>group</em> name, the global command name, the localized name, a flag
+(<code>ACRX_CMD_TRANSPARENT</code> means it can run while another command is active), and the function to
+call when the command runs.</p>
+
+<p><code>unloadApp()</code> removes that command group when AutoCAD unloads the app — you must clean up the
+entry points you added:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code><span class="kw">void</span> unloadApp()
+{
+    acedRegCmds-&gt;removeGroup(_T(<span class="str">"HELLOWORLD_COMMANDS"</span>));
+}</code></pre>
+</div>
+
+<p><code>helloWorld()</code> is the command itself. <code>acutPrintf()</code> is ObjectARX's version of C's
+<code>printf</code>, aimed at the AutoCAD command line:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code><span class="kw">void</span> helloWorld()
+{
+    acutPrintf(_T(<span class="str">"\nHello World!"</span>));
+}</code></pre>
+</div>
+
+<p>Finally, the single most important function in any ObjectARX app: <strong><code>acrxEntryPoint()</code></strong>.
+Because a plug-in is a DLL (it has no <code>main()</code>), AutoCAD calls this function to send it messages —
+"you are being loaded," "you are being unloaded," and so on:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code><span class="kw">extern</span> <span class="str">"C"</span> AcRx::AppRetCode
+acrxEntryPoint(AcRx::AppMsgCode msg, <span class="kw">void</span>* pkt)
+{
+    <span class="kw">switch</span> (msg)
+    {
+    <span class="kw">case</span> AcRx::kInitAppMsg:
+        acrxDynamicLinker-&gt;unlockApplication(pkt);  <span class="cm">// allow unloading</span>
+        acrxRegisterAppMDIAware(pkt);
+        initApp();
+        <span class="kw">break</span>;
+    <span class="kw">case</span> AcRx::kUnloadAppMsg:
+        unloadApp();
+        <span class="kw">break</span>;
+    <span class="kw">default</span>:
+        <span class="kw">break</span>;
+    }
+    <span class="kw">return</span> AcRx::kRetOK;
+}</code></pre>
+</div>
+
+<p>When AutoCAD loads the app (<code>kInitAppMsg</code>), unlock it so it can be unloaded later, mark it
+MDI-aware, and register the command. When AutoCAD unloads the app (<code>kUnloadAppMsg</code>), remove the
+command.</p>
+</section>
+
+<section id="l1-def">
+<h2>Step 5 — The .def file</h2>
+<p>AutoCAD can only find <code>acrxEntryPoint()</code> if the DLL <em>exports</em> it. The simplest way is a
+module definition (<code>.def</code>) file.</p>
+<ol>
+<li>From the <strong>Project</strong> menu, choose <strong>Add New Item…</strong> (Ctrl+Shift+A).</li>
+<li>In the "Add New Item" dialog, select <strong>Module-Definition File (.def)</strong>.</li>
+<li>Enter <strong><code>ArxProject</code></strong> in the <strong>Name:</strong> box and click
+<strong>Open</strong>.</li>
+</ol>
+<p>Clear any auto-generated content and add the following to the new file. Every ObjectARX application must export at least these two functions —
+<code>acrxEntryPoint</code> and <code>acrxGetApiVersion</code>:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>EXPORTS
+    acrxEntryPoint      PRIVATE
+    acrxGetApiVersion   PRIVATE</code></pre>
+</div>
+
+<div class="callout tip">
+<p><span class="lbl">Note.</span> You may see linker warning <code>LNK4099</code> for some libraries during the
+build. It's harmless here — you can ignore it.</p>
+</div>
+</section>
+
+<section id="l1-run">
+<h2>Step 6 — Build &amp; run</h2>
+<p>Set the configuration to <strong>x64</strong> and build with <strong>Build → Build Solution</strong>
+(Ctrl+Shift+B). If you followed along, you'll get <strong>0 errors</strong> and your plug-in appears as
+<code>Step01.arx</code> in the project's <code>x64</code> output folder.</p>
+
+<p>Now load and run it in AutoCAD. Start AutoCAD 2027, open any drawing, and load
+<code>Step01.arx</code> using any of these methods:</p>
+<ol>
+<li>Drag the file from Windows Explorer into the AutoCAD window.</li>
+<li>Use the AutoCAD <strong><code>ARX</code></strong> command's <strong>Load</strong> option at the command
+line.</li>
+<li>From the <strong>Tools</strong> menu, choose <strong>Load Application…</strong>.</li>
+<li>Type <strong><code>APPLOAD</code></strong>, browse to <code>Step01.arx</code>, and click <strong>Load</strong>.</li>
+</ol>
+<p>Once loaded, type <strong><code>HELLO</code></strong> and press Enter. You'll see
+<code>Hello World!</code> printed on the command line. (Typing <code>BONJOUR</code> works too — that was
+the localized name.)</p>
+
+<figure class="shot">
+  <img src="images/l1-09-hello.png" alt="HELLO output in AutoCAD" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l1-09-hello.png</code></div>
+    <div>The AutoCAD command line showing "Hello World!" after running HELLO.</div></div>
+  <figcaption><span class="fig">Lesson 1, Figure 9</span> — Your first ObjectARX command running.</figcaption>
+</figure>
+
+<p>That's a complete ObjectARX application, built entirely by hand. Notice how much of the work was
+<em>settings and plumbing</em>, not your actual idea. Lesson 2 removes that busywork. Stuck anywhere above?
+Compare with the solved project: <a href="Solutions/Lesson1_Solved.zip" download>Solutions\Lesson1_Solved.zip</a>.</p>
+
+<div class="next">▶ Next: <a href="#l2-intro">Lesson 2 — Do it faster with Claude Code</a></div>
+</section>
+
+<!-- ============ LESSON 2 ============ -->
+<section id="l2-intro">
+<div class="band">
+  <div class="kicker">Lesson 2 · The fast path</div>
+  <h1>Do It Faster with Claude Code</h1>
+</div>
+
+<p>As you just saw, creating an ObjectARX application by hand is a lot of careful clicking. In this lesson
+you'll get the same kind of project in seconds using <strong>Claude Code</strong> and a ready-made
+<strong>wizard skill</strong>.</p>
+
+<div class="callout tip">
+<p><span class="lbl">We won't repeat Lesson 1 here.</span> The ObjectARX ideas — commands,
+<code>acrxEntryPoint()</code>, <code>/MD</code>, the <code>.arx</code> output — are exactly the same. This
+lesson focuses only on the <em>tools</em> and on what the generated project gives you <em>on top of</em>
+the hand-built one.</p>
+</div>
+</section>
+
+<section id="l2-claude">
+<h2>Step 1 — What is Claude Code, and how to install it</h2>
+<p><strong>Claude Code</strong> is an AI assistant that runs in your terminal. Unlike a chat window, it can
+actually work on your computer — read and write files, run commands, and build projects — while asking
+your permission before anything risky. You tell it what you want in plain English and it does the steps.</p>
+
+<h3>Install it</h3>
+<ol>
+<li>Open <strong>PowerShell</strong> (press the Windows key, type <em>PowerShell</em>, Enter).</li>
+<li>Install Claude Code using the official native installer — no Node.js required, and it keeps itself
+updated automatically:
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>irm https://claude.ai/install.ps1 | iex</code></pre></div></li>
+</ol>
+
+
+
+<ol start="3">
+<li>Move into a working folder and start it by typing <code>claude</code>:
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>cd C:\Users\you\source\repos
+claude</code></pre></div>
+The first time, it will walk you through signing in.</li>
+</ol>
+
+
+<figure class="shot">
+  <img src="images/l2-01-install.png" alt="Native installer running in PowerShell" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l2-01-install.png</code></div>
+    <div>The native installer downloading and installing Claude Code in PowerShell.</div></div>
+  <figcaption><span class="fig">Lesson 2, Figure 1</span> — Running the native installer.</figcaption>
+</figure>
+
+<figure class="shot">
+  <img src="images/l2-02-claude.png" alt="Claude Code running" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l2-02-claude.png</code></div>
+    <div>Claude Code started in the terminal after typing <code>claude</code>.</div></div>
+  <figcaption><span class="fig">Lesson 2, Figure 2</span> — Claude Code running in PowerShell.</figcaption>
+</figure>
+
+<div class="callout tip">
+<p><span class="lbl">Prefer npm?</span> <code>npm install -g @anthropic-ai/claude-code</code> still works and
+installs the same tool, but it requires Node.js 22+ and doesn't auto-update — you'd run
+<code>claude update</code> yourself. The native installer above is Anthropic's recommended method.</p>
+</div>
+
+<div class="callout tip">
+<p><span class="lbl">Two handy habits inside Claude Code:</span> commands that start with <code>/</code> (a
+"slash command") run a skill; and a line that starts with <code>!</code> runs a shell command yourself, e.g.
+<code>!dir</code>.</p>
+</div>
+
+
+</section>
+
+<section id="l2-skill">
+<h2>Step 2 — Get the ObjectARX wizard skill</h2>
+<p>A <strong>skill</strong> is a small folder of instructions and scripts that teaches Claude Code how to do
+a specialized task well. Think of it as a plug-in for the assistant. When a skill is installed, you trigger
+it with a slash command.</p>
+
+<p>The one you want is <strong><code>acad-arx-wizard</code></strong>. It replaces the old (and, in Visual
+Studio 2026, broken) ObjectARX project wizard with scripts that generate the same project files.</p>
+
+<h3>Install the skill</h3>
+<ol>
+<li>Open the skill in your browser:
+<a href="https://github.com/autodesk-platform-services/skills/tree/main/skills/acad-arx-wizard">github.com/autodesk-platform-services/skills → skills/acad-arx-wizard</a>. Go through its
+<a href="https://github.com/autodesk-platform-services/skills/tree/main/skills/acad-arx-wizard#readme">README file</a> in detail to understand what it does before installing it.</li>
+<li>Download that repository (green <strong>Code → Download ZIP</strong> button) and unzip it.</li>
+<li>Copy the <code>acad-arx-wizard</code> folder into your personal Claude Code skills folder:
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>C:\Users\&lt;you&gt;\.claude\skills\acad-arx-wizard</code></pre></div>
+That folder is exactly where this skill is installed on this machine.</li>
+<li>Windows blocks PowerShell scripts by default, and every wizard action runs one. In PowerShell, run this
+once to allow locally-installed scripts:
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code></pre></div></li>
+<li>Start (or restart) Claude Code. Type <code>/</code> and you should see <code>acad-arx-wizard</code> in the
+list of available skills.</li>
+</ol>
+
+<div class="callout tip">
+<p><span class="lbl">How to tell it worked:</span> inside Claude Code, run <code>/acad-arx-wizard</code>. If the
+skill is installed, Claude greets you and asks which kind of project or class you want.</p>
+</div>
+
+<div class="callout tip">
+<p><span class="lbl">Faster install, if you already have Node.js.</span> The skill's repository also supports
+installing it with a single command instead of the manual download-and-copy above:
+<code>npx skills add autodesk-platform-services/skills --global --skill acad-arx-wizard</code>. This needs
+Node.js v16.7+ (for the install only) — the manual method above works without it.</p>
+</div>
+
+<figure class="shot">
+  <img src="images/l2-03-skill.png" alt="Skill folder installed" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l2-03-skill.png</code></div>
+    <div>The <code>acad-arx-wizard</code> folder inside <code>.claude\skills</code>, or the slash-command list.</div></div>
+  <figcaption><span class="fig">Lesson 2, Figure 3</span> — The wizard skill installed.</figcaption>
+</figure>
+
+<h3>Good to know about the skill</h3>
+<div class="callout tip">
+<p><span class="lbl">Why this skill exists.</span> The classic <code>.vsz</code> /
+<code>VsWizardEngine</code> wizard (<em>File → New → ObjectARX</em>) is broken in Visual Studio 2026 — a
+known VS regression (see
+<a href="https://developercommunity.visualstudio.com/t/VsWizardVsWizardEngine-vsz-based-projec/11071541">MS
+Developer Community #11071541</a>). This skill replaces it for AutoCAD 2027 / VS 2026, running the same kind
+of generator, so what you get is a <strong>normal, standard ObjectARX project</strong>. VS 2022 isn't affected by this bug; if
+you're on VS 2022 you can keep using the original
+<a href="https://github.com/ADN-DevTech/ObjectARX-Wizards">ObjectARX-Wizards installer</a> instead.</p>
+<p><span class="lbl">It's safe.</span> The skill only writes files into the folder you choose, and Claude
+Code asks your permission before running anything. It doesn't touch AutoCAD's settings; the one-time
+PowerShell execution-policy change in Step 2 above is the only Windows-level change, and it's limited to
+your user account.</p>
+</div>
+
+<h3>Which project type? arx vs dbx vs crx</h3>
+<p>When you ask for a project, the skill can make three kinds. For your first plug-ins you want
+<strong>arx</strong>.</p>
+<table>
+<thead><tr><th>Type</th><th>Runs where</th><th>Use it when…</th></tr></thead>
+<tbody>
+<tr><td><strong>arx</strong></td><td>Inside AutoCAD (with its UI)</td><td>…almost always — commands, drawing, reacting to the user. <em>Start here.</em></td></tr>
+<tr><td><strong>dbx</strong></td><td>No AutoCAD UI (RealDWG / object module)</td><td>…you're defining custom objects meant to be shared by other modules.</td></tr>
+<tr><td><strong>crx</strong></td><td>The headless console (<code>accoreconsole.exe</code>)</td><td>…you need batch/automation with no user interface.</td></tr>
+</tbody>
+</table>
+
+<h3>What you can ask for</h3>
+<p>The simple prompt in the next step is enough to start, but the skill accepts more options — just mention
+them in plain English:</p>
+<ul>
+<li><strong>Project name</strong> and <strong>location</strong> (required).</li>
+<li><strong>Project type</strong> — <code>arx</code>, <code>dbx</code>, or <code>crx</code> (default <code>arx</code>).</li>
+<li><strong>MFC</strong> — <code>none</code>, <code>shared</code>, or <code>ext</code> (for dialogs/palettes; default <code>none</code>).</li>
+<li><strong>ATL/COM</strong> or <strong>.NET/CLR</strong> support, if you plan to expose your code that way.</li>
+<li><strong>RDS prefix</strong> — a short unique tag (default <code>Adsk</code>) added to your names so they
+don't clash with other developers' plug-ins.</li>
+</ul>
+<p>For example: <em>"create a dbx project called Shapes with RDS prefix Xyz."</em></p>
+
+<div class="callout tip">
+<p><span class="lbl">Under the hood (and when things go wrong).</span> A skill is just a folder you can open:
+<code>SKILL.md</code> (instructions), <code>scripts/</code> (the generators), <code>templates/</code>, and
+<code>docs/</code>. Two of those docs are worth knowing about — <code>docs/arx-dev-guide.md</code> explains
+the build settings, and <code>docs/learnings.md</code> collects real-world build/link gotchas. If a build
+ever fails, check there before panicking. To update the skill, re-download its folder from the GitHub repo.</p>
+</div>
+</section>
+
+<section id="l2-create">
+<h2>Step 3 — Scaffold the project</h2>
+<p>Now let Claude Code build the project. In the Claude Code prompt, just describe what you want in plain
+English:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>/acad-arx-wizard
+create a simple ObjectARX project called HelloArx</code></pre></div>
+
+<p>Claude first works out which of the skill's wizards you mean — here, "create a project" maps to the
+full-project wizard, not one of the add-on class wizards from Step 5 below. It then asks only for the pieces
+it can't guess — a <strong>project name</strong> and a <strong>location</strong> — since everything else
+(app type, MFC mode, RDS prefix) has a sensible default unless you say otherwise. Once it has what it needs,
+it runs the wizard script. Behind the scenes it executes a single PowerShell command (you don't have to
+type it):</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>powershell.exe -ExecutionPolicy Bypass -NoProfile -File "&lt;skill-root&gt;\scripts\New-ArxApp.ps1" `
+    -ProjectName HelloArx -OutputPath "C:\Dev" -AppType arx -MfcMode none</code></pre></div>
+
+<p>In a couple of seconds it reports something like:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>Done. Generated 13 files in: C:\Dev\HelloArx
+
+  StdAfx.cpp
+  StdAfx.h
+  acrxEntryPoint.cpp
+  Resource.h
+  root.rc
+  ReadMe.txt
+  DocData.cpp
+  DocData.h
+  HelloArx.cpp
+  HelloArx.vcxproj
+  Autodesk.arx-2027.props
+  Autodesk.arx-2027-net.props
+  crx.props
+
+Next steps:
+  1. Open HelloArx.vcxproj in Visual Studio 2026
+  2. Verify the ObjectARX SDK path in Autodesk.arx-2027.props
+  3. Build -> x64 Debug</code></pre></div>
+
+<figure class="shot">
+  <img src="images/l2-04-generated.png" alt="Generated project" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l2-04-generated.png</code></div>
+    <div>The wizard's "Done. Generated 13 files" output, or the new project folder.</div></div>
+  <figcaption><span class="fig">Lesson 2, Figure 4</span> — The generated project.</figcaption>
+</figure>
+
+<p>Compare that to Lesson 1: no manual include paths, no linker list, no <code>.def</code> file, no
+<code>/MD</code> hunting. The wizard set all of it correctly for AutoCAD 2027.</p>
+</section>
+
+<section id="l2-more">
+<h2>Step 4 — What the skill's project gives you (beyond Lesson 1)</h2>
+<p>The hand-built project in Lesson 1 was deliberately bare. The generated <code>HelloArx</code> project is a
+more realistic starting point. The extras worth knowing about:</p>
+
+<table>
+<thead><tr><th>What you get</th><th>Why it helps</th></tr></thead>
+<tbody>
+<tr><td><strong>An app <em>class</em></strong> (<code>CHelloArxApp</code>) instead of loose functions</td>
+<td>ObjectARX's modern C++ style. Load/unload handling lives in tidy member functions instead of a big <code>switch</code>.</td></tr>
+<tr><td><strong>Auto-registered commands</strong> via the <code>ACED_ARXCOMMAND_ENTRY_AUTO(...)</code> macro</td>
+<td>No more writing <code>initApp()</code>/<code>unloadApp()</code> by hand — add a function, add one macro line, done.</td></tr>
+<tr><td><strong>A precompiled header</strong> (<code>StdAfx.h</code> pulling in <code>arxHeaders.h</code>)</td>
+<td>You get <em>all</em> ObjectARX headers at once, and builds are much faster.</td></tr>
+<tr><td><strong>Property sheets</strong> (<code>Autodesk.arx-2027.props</code>) instead of hand-typed settings</td>
+<td>All the SDK paths, <code>/MD</code>, C++17, and the <code>.arx</code> extension are set for you and easy to edit in one place.</td></tr>
+<tr><td><strong>A <code>DocData</code> class + DLL plumbing</strong></td>
+<td>Ready-made spots for per-drawing data and the standard COM/DLL entry points — there when you grow beyond "hello."</td></tr>
+</tbody>
+</table>
+
+<p>In short: the generated project already has everything Lesson 1 set up by hand, plus the extras above. To
+add your own command you now just write a function and register it with one macro line:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">static</span> <span class="kw">void</span> AdskMyGroupHello()
+{
+    acutPrintf(ACRX_T(<span class="str">"\nHello, ObjectARX!"</span>));
+}
+<span class="cm">// ...and at the bottom of the file:</span>
+ACED_ARXCOMMAND_ENTRY_AUTO(CHelloArxApp, AdskMyGroup, Hello, Hello, ACRX_CMD_MODAL, NULL)</code></pre></div>
+
+<div class="callout tip">
+<p><span class="lbl">Naming rule (same idea as Lesson 1).</span> The function name is the command
+<em>group</em> + the command <em>name</em>: group <code>AdskMyGroup</code> + command <code>Hello</code>
+→ <code>AdskMyGroupHello</code>.</p>
+</div>
+</section>
+
+<section id="l2-addons">
+<h2>Step 5 — Add-on class wizards (beyond a full project)</h2>
+<p>Creating a whole project — what you just did — is only one of the things the skill can do. The same
+<code>acad-arx-wizard</code> skill can also add ready-made <strong>class files</strong> to an existing
+project: the ObjectARX building blocks you'll reach for as you grow. You don't run a separate tool — you
+just ask Claude Code in plain English, and it drops the generated <code>.h</code>/<code>.cpp</code> files
+into your project folder for you to include (right-click the project → <strong>Add → Existing Item</strong>).</p>
+
+<p>Here are the add-ons in plain terms. You don't need to understand them fully yet — just know they exist.</p>
+<table>
+<thead><tr><th>Add-on</th><th>What it's for (beginner view)</th><th>Say something like…</th></tr></thead>
+<tbody>
+<tr><td><strong>Custom Object</strong></td><td>Your own kind of object stored in the drawing — a subclass of <code>AcDbEntity</code>.</td><td><em>"add a custom object called AdskEmployee"</em></td></tr>
+<tr><td><strong>Reactor</strong></td><td>Code that <em>reacts</em> to events — runs when an object is modified, or the drawing/database changes.</td><td><em>"add a database reactor to HelloArx"</em></td></tr>
+<tr><td><strong>Jig</strong></td><td>Interactive dragging — lets the user drag and preview an object with the mouse before placing it.</td><td><em>"add a jig for placing a line"</em></td></tr>
+<tr><td><strong>MFC dialog / palette</strong></td><td>A user-interface window — a dialog box, tool palette, or dockable panel.</td><td><em>"add an MFC dialog"</em></td></tr>
+<tr><td><strong>.NET wrapper</strong></td><td>Lets .NET (C#) code call into your C++ object — a managed C++/CLI wrapper.</td><td><em>"add a .NET wrapper for my custom object"</em></td></tr>
+<tr><td><strong>COM wrapper</strong></td><td>Exposes your object to COM/automation clients such as VBA or scripting.</td><td><em>"add a COM wrapper object"</em></td></tr>
+<tr><td><strong>Dynamic property</strong></td><td>Adds runtime ("dynamic") properties to objects, similar to dynamic-block parameters.</td><td><em>"add a dynamic property class"</em></td></tr>
+</tbody>
+</table>
+
+<div class="callout tip">
+<p><span class="lbl">You don't need these yet.</span> For your first commands the full project is all you need.
+Come back to this list when you're ready to store custom data (<strong>Custom Object</strong>), respond to
+events (<strong>Reactor</strong>), let users drag geometry (<strong>Jig</strong>), or add a UI
+(<strong>MFC</strong>). Each one is a single request away.</p>
+</div>
+</section>
+
+<section id="l2-run">
+<h2>Step 6 — Build &amp; run</h2>
+<ol>
+<li>Open <code>HelloArx.vcxproj</code> in Visual Studio 2026.</li>
+<li>If your SDK/AutoCAD live in non-default folders, open <code>Autodesk.arx-2027.props</code> and fix the
+<code>ArxSdkDir</code> and <code>AcadDir</code> lines.</li>
+</ol>
+
+<div class="callout warn">
+<p><span class="lbl">Heads up — a build error can show up here.</span> The generated
+<code>Autodesk.arx-2027.props</code> ships with a placeholder <code>ArxSdkDir</code>
+(<code>C:\ObjectARX\</code>). If you skip the fix in point 2 above, Build Solution fails with something
+like:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>MSB4019: The imported project "C:\ObjectARX\inc\arx.props" was not found. Confirm that the
+expression in the Import declaration "$(ArxSdkDir)\inc\arx.props", which evaluated to
+"C:\ObjectARX\\inc\arx.props", is correct, and that the file exists on disk.</code></pre></div>
+</div>
+
+<figure class="shot">
+  <img src="images/l2-05b-sdkerror.png" alt="MSB4019 ArxSdkDir not found error" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l2-05b-sdkerror.png</code></div>
+    <div>The MSB4019 error in Visual Studio's Error List, complaining that "C:\ObjectARX\inc\arx.props" was not found.</div></div>
+  <figcaption><span class="fig">Lesson 2, Figure 5b</span> — The ArxSdkDir placeholder error.</figcaption>
+</figure>
+
+<p>If you hit this, you don't need to hand-edit the props file yourself — just tell Claude Code where your
+real SDK lives and let it make the fix. In the Claude Code prompt, paste the error and say something like:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>I got this build error: [paste the MSB4019 error above].
+My ObjectARX 2027 SDK is actually installed at C:\Work\arxsdk\2027 — update the
+ArxSdkDir path in Autodesk.arx-2027.props to match.</code></pre></div>
+<p>Claude Code will check that the folder you give it actually contains <code>arx.props</code>,
+<code>inc-x64</code>, and <code>lib-x64</code>, then update the <code>ArxSdkDir</code> line for you.</p>
+
+<ol start="3">
+<li>Build <strong>x64 Debug</strong> (Ctrl+Shift+B). The output is
+<code>x64\Debug\AdskHelloArx.arx</code>.</li>
+<li>In AutoCAD: <code>APPLOAD</code> that file, then type <code>MYCOMMAND</code>.</li>
+</ol>
+
+<div class="callout tip">
+<p><span class="lbl">Why <code>MYCOMMAND</code> and not <code>HELLO</code>.</span> Unlike Lesson 1's
+hand-written project, the wizard's <code>acrxEntryPoint.cpp</code> doesn't ship a command literally named
+<code>HELLO</code>. It ships three <strong>stub</strong> commands with empty bodies —
+<code>MYCOMMAND</code>, <code>MYPICKFIRST</code>, and <code>MYSESSIONCMD</code> — plus a stub Lisp function,
+all placeholders for you to fill in (look for <code>AdskMyGroupMyCommand</code> in the file). Typing
+<code>MYCOMMAND</code> at the command line is the real smoke test here: it confirms the <code>.arx</code>
+loaded, <code>On_kInitAppMsg</code> ran, and the command table registered and dispatched correctly — even
+though the stub itself does nothing visible yet.</p>
+</div>
+
+<p>If <code>MYCOMMAND</code> runs with no errors (AutoCAD just returns to a blank command line), the plug-in
+loaded and works — same underlying proof as Lesson 1's <code>HELLO</code>, you just don't get a printed
+message yet, because the stub body is empty.</p>
+
+<div class="callout tip">
+<p><span class="lbl">Want to actually see something happen?</span> Ask Claude Code to fill in the stub. In
+the Claude Code prompt:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>Add a print statement to the MYCOMMAND stub (AdskMyGroupMyCommand) in acrxEntryPoint.cpp using
+acutPrintf, then rebuild HelloArx and tell me how to test it.</code></pre></div>
+<p>Claude will edit the function body — typically something like:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">static</span> <span class="kw">void</span> AdskMyGroupMyCommand()
+{
+    acutPrintf(ACRX_T(<span class="str">"\nHello from HelloArx!"</span>));
+}</code></pre></div>
+<p>then rebuild the project and hand you back the <code>APPLOAD</code> + <code>MYCOMMAND</code> steps to
+confirm it. (Note it uses <code>ACRX_T</code>, not Lesson 1's <code>_T</code> — this project has no
+<code>tchar.h</code>/MFC include pulling <code>_T</code> in.)</p>
+</div>
+
+<figure class="shot">
+  <img src="images/l2-05-hello.png" alt="MYCOMMAND from the generated project" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l2-05-hello.png</code></div>
+    <div>The MYCOMMAND command running from the wizard-generated plug-in.</div></div>
+  <figcaption><span class="fig">Lesson 2, Figure 5</span> — The generated plug-in running in AutoCAD.</figcaption>
+</figure>
+
+<div class="callout tip">
+<p><span class="lbl">Debug tip.</span> The property sheet already points the debugger at AutoCAD, so pressing
+<strong>F5</strong> launches AutoCAD with the debugger attached. <code>APPLOAD</code> your <code>.arx</code>,
+set a breakpoint, run <code>MYCOMMAND</code>, and step through your code.</p>
+</div>
+
+<div class="next">▶ Next: <a href="#l3-intro">Lesson 3 — Getting input and selecting entities</a></div>
+</section>
+
+<!-- ============ LESSON 3 ============ -->
+<section id="l3-intro">
+<div class="band">
+  <div class="kicker">Lesson 3 · Talking to the user</div>
+  <h1>Getting Input &amp; Selecting Entities</h1>
+</div>
+
+<p>So far your commands just printed a message. Real commands <em>ask the user for something</em> — a
+number, a choice, a point, or an object in the drawing. In this lesson you'll add two commands to the
+<code>HelloArx</code> project from Lesson 2 and learn ObjectARX's input and selection functions.</p>
+
+<p><span class="lbl">Objectives</span></p>
+<ol>
+<li><strong><code>MYINPUT</code></strong> — demonstrate input functions:
+  <ol type="a">
+  <li>Ask for an integer, but <strong>disallow negative and zero</strong> values.</li>
+  <li>Ask for a real number, but also accept the keywords <code>PI</code>, <code>A</code>, <code>B</code>,
+  <code>C</code> — defaulting to <code>C</code> if the user just presses <strong>Enter</strong>. The value
+  becomes 3.14 for <code>PI</code>, 10.0 for <code>A</code>, 11.0 for <code>B</code>, 12.0 for <code>C</code>.</li>
+  <li>Handle the user pressing <strong>Esc</strong> gracefully.</li>
+  <li>Print the integer and the real value on the command line.</li>
+  </ol>
+</li>
+<li><strong><code>MYSELECT</code></strong> — demonstrate entity selection:
+  <ol type="a">
+  <li>Ask the user to select a single entity.</li>
+  <li>If one is selected, show its Object ID (the first element of the returned <code>ads_name</code> data type).</li>
+  </ol>
+</li>
+</ol>
+
+<h3>The functions you'll use</h3>
+<p>ObjectARX gives you a family of <code>acedGetXxx</code> input functions and a set of selection functions.
+The full list is in the ObjectARX Help; here are the ones relevant to this lesson:</p>
+<table>
+<thead><tr><th>Function</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td><code>acedInitGet</code></td><td>Sets rules for the <em>next</em> <code>acedGetXxx</code> call (e.g. "no negatives") and registers keywords.</td></tr>
+<tr><td><code>acedGetInt</code></td><td>Prompts for an integer.</td></tr>
+<tr><td><code>acedGetReal</code></td><td>Prompts for a real (floating-point) number.</td></tr>
+<tr><td><code>acedGetInput</code></td><td>Retrieves the keyword the user typed after a "keyword" result.</td></tr>
+<tr><td><code>acedEntSel</code></td><td>Lets the user pick a single entity in the drawing.</td></tr>
+</tbody>
+</table>
+
+<div class="callout tip">
+<p><span class="lbl">The key idea — return codes.</span> Every <code>acedGetXxx</code> function returns a status
+code that tells you <em>what the user did</em>: <code>RTNORM</code> (entered a normal value),
+<code>RTNONE</code> (pressed Enter with no value), <code>RTKWORD</code> (typed a keyword), or
+<code>RTCAN</code> (pressed Esc). Checking this code is how you handle every case correctly.</p>
+</div>
+</section>
+
+<section id="l3-add">
+<h2>Step 1 — Add the two commands</h2>
+<p>You add commands exactly the way Lesson 2 showed: a function, plus one registration macro line. The
+quickest route is to ask Claude Code to do it for you — from inside the project, just say:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>add two commands to HelloArx: MYINPUT and MYSELECT</code></pre></div>
+<p>Claude edits <code>acrxEntryPoint.cpp</code>, adding a function and an
+<code>ACED_ARXCOMMAND_ENTRY_AUTO</code> line for each. (You can also add them by hand — the next two steps
+show the code to put in each function.) The scaffolding looks like this:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="cm">// inside class CHelloArxApp { ... }:</span>
+<span class="kw">static</span> <span class="kw">void</span> ADSKArxLesson3_MyInput();
+<span class="kw">static</span> <span class="kw">void</span> ADSKArxLesson3_MySelect();
+
+<span class="cm">// at the bottom of the file, next to the HELLO entry:</span>
+ACED_ARXCOMMAND_ENTRY_AUTO(CHelloArxApp, ADSKArxLesson3, _MyInput,  MyInput,  ACRX_CMD_MODAL, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CHelloArxApp, ADSKArxLesson3, _MySelect, MySelect, ACRX_CMD_MODAL, NULL)</code></pre></div>
+
+<div class="callout tip">
+<p><span class="lbl">Straight from the ObjectARX training samples.</span> The two functions below are the same
+functions (logic included) as Autodesk's own <code>Step02_Solved</code> sample in the ObjectARX training
+materials, renamed to fit this tutorial's own numbering — <code>ADSKArxLesson3_MyInput</code> /
+<code>ADSKArxLesson3_MySelect</code>. That's also why the group name (<code>ADSKArxLesson3</code>) and global
+command name (<code>_MyInput</code> / <code>_MySelect</code>) look different from the
+<code>AdskMyGroup</code> pattern used for <code>MYCOMMAND</code> in Lesson 2 — both are valid, it's just a
+different sample's naming choice.</p>
+</div>
+</section>
+
+<section id="l3-input">
+<h2>Step 2 — The MYINPUT command</h2>
+<p>Here is the full function. Read it top to bottom — each block matches one objective from the overview.</p>
+
+<div class="callout tip">
+<p><span class="lbl">Heads-up: <code>tchar.h</code> isn't automatic.</span> The skill's template doesn't pull in
+<code>tchar.h</code> by default — <code>TCHAR</code>/<code>_T()</code> below won't compile until you add
+<code>#include &lt;tchar.h&gt;</code> yourself, near the top of <code>acrxEntryPoint.cpp</code> (Lesson 4's
+utility functions will need the same fix).</p>
+</div>
+
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">static</span> <span class="kw">void</span> ADSKArxLesson3_MyInput()
+{
+    <span class="kw">int</span> stat, iValue;
+    <span class="kw">double</span> rValue;
+    TCHAR kWord[133];
+
+    acedInitGet(RSG_NONEG | RSG_NOZERO, _T(<span class="str">""</span>));
+
+    <span class="kw">if</span> (acedGetInt(_T(<span class="str">"\nEnter an integer value: "</span>), &amp;iValue) != RTNORM)
+        <span class="kw">return</span>;
+
+    rValue = 12.0;
+    acedInitGet(RSG_NOZERO, _T(<span class="str">"PI A B C"</span>));
+    stat = acedGetReal(_T(<span class="str">"\nEnter a real value [PI/A/B/C] &lt;C&gt;: "</span>), &amp;rValue);
+    <span class="kw">switch</span> (stat) {
+    <span class="kw">case</span> RTCAN: <span class="cm">// User termination</span>
+        <span class="kw">return</span>;
+    <span class="kw">case</span> RTKWORD: <span class="cm">// Got a keyword</span>
+        <span class="kw">if</span> (acedGetInput(kWord) != RTNORM)
+            <span class="kw">return</span>;
+        <span class="kw">if</span> (!_tcscmp(_T(<span class="str">"PI"</span>), kWord))
+            rValue = 3.14;
+        <span class="kw">else if</span> (!_tcscmp(_T(<span class="str">"A"</span>), kWord))
+            rValue = 10;
+        <span class="kw">else if</span> (!_tcscmp(_T(<span class="str">"B"</span>), kWord))
+            rValue = 11;
+        <span class="kw">else if</span> (!_tcscmp(_T(<span class="str">"C"</span>), kWord))
+            rValue = 12;
+        <span class="kw">break</span>;
+    <span class="kw">case</span> RTNONE:
+        acutPrintf(_T(<span class="str">"\nTake default rValue %lf"</span>), rValue);
+        <span class="kw">break</span>;
+    <span class="kw">case</span> RTNORM:
+        <span class="kw">break</span>;
+    <span class="kw">default</span>:
+        <span class="kw">return</span>;
+    }
+
+    acutPrintf(_T(<span class="str">"\nInteger : %d"</span>), iValue);
+    acutPrintf(_T(<span class="str">"\nReal    : %lf"</span>), rValue);
+}</code></pre></div>
+
+<p>Three things worth noticing:</p>
+<ul>
+<li><strong><code>acedInitGet</code> is "one-shot."</strong> Its rules and keywords apply only to the next
+<code>acedGetXxx</code> call, so you call it again before the real-number prompt — and note the rule changes
+too: <code>RSG_NONEG | RSG_NOZERO</code> for the integer, just <code>RSG_NOZERO</code> for the real (negative
+reals are allowed here).</li>
+<li><strong>Keywords come from a space-separated string.</strong> <code>acedInitGet(RSG_NOZERO, _T("PI A B C"))</code>
+tells AutoCAD those four words are valid answers. When the user types one, <code>acedGetReal</code> returns
+<code>RTKWORD</code> and you read it back with <code>acedGetInput</code>.</li>
+<li><strong>Every <code>stat</code> value is handled explicitly.</strong> <code>RTCAN</code> (Esc) and the
+unnamed <code>default</code> case both bail out silently; <code>RTNONE</code> (bare Enter) prints that it's
+falling back to the pre-set default (<code>rValue = 12.0</code>, i.e. <code>C</code>); <code>RTNORM</code>
+just falls through, since <code>rValue</code> already holds what the user typed.</li>
+</ul>
+</section>
+
+<section id="l3-select">
+<h2>Step 3 — The MYSELECT command</h2>
+<p><code>acedEntSel</code> asks the user to pick one entity. It fills an <code>ads_name</code> (the entity's
+name) and the pick point, and returns a status code just like the input functions.</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">static</span> <span class="kw">void</span> ADSKArxLesson3_MySelect()
+{
+    ads_name en;
+    ads_point pt;
+
+    <span class="kw">if</span> (acedEntSel(NULL, en, pt) != RTNORM)
+        <span class="kw">return</span>;
+
+    acutPrintf(_T(<span class="str">"\nYou selected entity ID: %ld"</span>), en[0]);
+}</code></pre></div>
+<div class="callout tip">
+<p><span class="lbl">Note the <code>NULL</code> prompt.</span> Passing <code>NULL</code> as <code>acedEntSel</code>'s
+prompt string means AutoCAD uses its own default prompt ("Select object:") instead of a custom one. Any
+non-<code>RTNORM</code> result (Esc, missed pick, nothing selected) is treated the same way here — a silent
+return — which is simpler than Lesson 3's earlier style of printing a distinct message per case, but gives
+the user less feedback.</p>
+</div>
+<div class="callout tip">
+<p><span class="lbl">Going further.</span> That raw number identifies the entity for this session. In real code
+you usually convert it to a database id with <code>acdbGetObjectId(objId, en)</code>, then open the object
+to read or change it — the subject of later ObjectARX lessons.</p>
+</div>
+</section>
+
+<section id="l3-run">
+<h2>Step 4 — Build &amp; test</h2>
+<ol>
+<li>Build <strong>x64 Debug</strong> (Ctrl+Shift+B) and <code>APPLOAD</code> the rebuilt
+<code>AdskHelloArx.arx</code> in AutoCAD (unload the old copy first, or restart AutoCAD).</li>
+<li>Type <code>MYINPUT</code>. Try each case: a negative number (rejected), <code>0</code> (rejected), a
+valid integer, then a real number — or a keyword like <code>A</code>, or just Enter for the <code>C</code>
+default. Confirm the printed values are right.</li>
+<li>Type <code>MYSELECT</code> and click any object. Confirm it prints an Object ID.</li>
+</ol>
+
+<figure class="shot">
+  <img src="images/l3-01-myinput.png" alt="MYINPUT running" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l3-01-myinput.png</code></div>
+    <div>The MYINPUT command prompting for input and printing the result.</div></div>
+  <figcaption><span class="fig">Lesson 3, Figure 1</span> — MYINPUT: integer and keyword-or-real input.</figcaption>
+</figure>
+
+<figure class="shot">
+  <img src="images/l3-02-myselect.png" alt="MYSELECT running" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l3-02-myselect.png</code></div>
+    <div>The MYSELECT command after picking an entity, showing its Object ID.</div></div>
+  <figcaption><span class="fig">Lesson 3, Figure 2</span> — MYSELECT: picking an entity.</figcaption>
+</figure>
+
+<p>You've now handled the two things almost every command needs: getting values from the user and letting
+them point at the drawing. Stuck on either command? Compare with the complete solution:
+<a href="Solutions/Lesson3_Solved.zip" download>Solutions\Lesson3_Solved.zip</a>.</p>
+</section>
+
+<!-- ============ LESSON 4 ============ -->
+<section id="l4-intro">
+<div class="band">
+  <div class="kicker">Lesson 4 · The drawing database</div>
+  <h1>Symbol Tables — Layers &amp; Blocks</h1>
+</div>
+
+<p>Until now your commands only talked to the <em>user</em>. In this lesson they talk to the
+<strong>drawing database</strong> — creating a layer, defining a block, and changing objects already in
+the drawing. This is where ObjectARX gets genuinely useful.</p>
+
+<p>You'll add two commands to a fresh project:</p>
+<ul>
+<li><strong><code>CREATE</code></strong> — makes a layer named <code>USER</code> and a block definition
+named <code>EMPLOYEE</code> (a little "happy face" drawn from 3 circles and 1 arc).</li>
+<li><strong><code>SETLAYER</code></strong> — finds every <code>EMPLOYEE</code> block placed in the drawing
+and moves it onto the <code>USER</code> layer.</li>
+</ul>
+
+<figure class="shot">
+  <img src="images/l4-01-employee.png" alt="EMPLOYEE happy-face block" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l4-01-employee.png</code></div>
+    <div>The EMPLOYEE "happy face": a yellow face, two blue eyes, a red arc mouth.</div></div>
+  <figcaption><span class="fig">Lesson 4, Figure 1</span> — The EMPLOYEE block definition.</figcaption>
+</figure>
+
+<div class="callout warn">
+<p><span class="lbl">Read this before you write any database code.</span> Any object you open for read or
+write <strong>must be closed</strong> when you're done, and any iterator you create must be
+<strong>deleted</strong>. Forgetting to close objects will crash AutoCAD. Every "open" in this lesson is
+paired with a "close" — keep it that way.</p>
+</div>
+
+<div class="callout tip">
+<p><span class="lbl">Learn-by-doing.</span> This lesson gives you the <em>algorithm</em> and the data — not
+the finished code. Try to write each function yourself. If you get stuck, a complete solution is in
+<code>Solutions\Lesson4_Solved</code> (or just ask Claude Code to fill in a function and then read what it
+wrote).</p>
+</div>
+
+<h3>New database classes you'll meet</h3>
+<table>
+<thead><tr><th>Class</th><th>What it represents</th></tr></thead>
+<tbody>
+<tr><td><code>AcDbLayerTable</code> / <code>AcDbLayerTableRecord</code></td><td>The table of layers, and one layer in it.</td></tr>
+<tr><td><code>AcDbBlockTable</code> / <code>AcDbBlockTableRecord</code></td><td>The table of block definitions, and one definition (also Model Space itself).</td></tr>
+<tr><td><code>AcDbBlockReference</code></td><td>An <em>instance</em> of a block placed in the drawing (what <code>INSERT</code> creates).</td></tr>
+<tr><td><code>AcDbBlockTableRecordIterator</code></td><td>Steps through the entities inside a block record (e.g. Model Space).</td></tr>
+<tr><td><code>AcDbCircle</code> / <code>AcDbArc</code></td><td>The circle and arc entities that make up the happy face.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="l4-project">
+<h2>Step 1 — Create the template project (with the skill)</h2>
+<p>Use the Claude Code skill from Lesson 2 to create the project. In Claude Code:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>/acad-arx-wizard
+create a simple ObjectARX arx project called Lesson4 in C:\Users\&lt;you&gt;\source\repos</code></pre></div>
+<p>That gives you the standard project (the same files you saw in Lesson 2). <strong>Everything after this
+is ordinary ObjectARX coding.</strong></p>
+</section>
+
+<section id="l4-utils">
+<h2>Step 2 — Utility functions</h2>
+<p>In this exercise you'll implement two utility functions that the <code>CREATE</code> command will rely
+on: <strong><code>createLayer()</code></strong> and <strong><code>createBlockRecord()</code></strong>. You'll
+implement these in a new file <code>utilities.cpp</code>, with the declarations in a header file
+<code>utilities.h</code>.</p>
+
+<h3>Creating the header and implementation files</h3>
+<p>Create a new header file named <strong><code>utilities.h</code></strong>. This file will contain the
+utility functions' declarations. Add the following code:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">#include</span> <span class="str">"StdAfx.h"</span>
+<span class="cm">//Declaration of createLayer():</span>
+Acad::ErrorStatus createLayer (<span class="kw">const</span> TCHAR* layerName, AcDbObjectId&amp; layerId);
+
+<span class="cm">//Declaration of createBlockRecord():</span>
+Acad::ErrorStatus createBlockRecord (<span class="kw">const</span> TCHAR* name);</code></pre></div>
+
+<p>Create a new <code>.cpp</code> file named <strong><code>utilities.cpp</code></strong>. Before adding the
+implementations, add this include:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">#include</span> <span class="str">"utilities.h"</span></code></pre></div>
+
+<div class="callout tip">
+<p><span class="lbl">Heads-up: <code>tchar.h</code> isn't automatic.</span> The skill's template doesn't pull in
+<code>tchar.h</code> by default — <code>TCHAR</code>/<code>_T()</code> below won't compile until you add
+<code>#include &lt;tchar.h&gt;</code> yourself, near the top of <code>utilities.h</code> and
+<code>acrxEntryPoint.cpp</code> (same fix as Lesson 3's <code>MYINPUT</code>).</p>
+</div>
+
+<hr>
+<h3>Implementing <code>createLayer()</code> in <code>utilities.cpp</code></h3>
+<p>Add the following function description:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="cm">//
+// Create a new layer or return the ObjectId if it already exists
+//
+// In :
+// const TCHAR* layerName : layer name
+// Out :
+// AcDbObjectId&amp; layerId : ObjectId of the created or existing layer
+//</span></code></pre></div>
+
+<h4>Algorithm for <code>createLayer()</code></h4>
+<ol>
+<li>Get the layer table from the current working database (<code>AcDbLayerTable</code>,
+<code>AcDbDatabase::getLayerTable()</code>). To get the current working database, use
+<code>acdbHostApplicationServices()-&gt;workingDatabase()</code>.</li>
+<li>Check to see if a layer of the same name already exists (<code>AcDbLayerTable::getAt()</code>). If it
+does, get its object ID and return it using the second argument of our <code>createLayer()</code>
+function.</li>
+<li>If the layer does not already exist then we have to create it and add it to the layer table. You create
+a new layer (<code>AcDbLayerTableRecord</code>) with the <code>new</code> operator. Since we will modify the
+layer table, the layer table will need to be opened for write. The newly created Layer Table Record will be
+added to the layer table with <code>AcDbLayerTable::add()</code>. We will return the object ID of the newly
+created layer — after it has been closed, of course.</li>
+</ol>
+
+<hr>
+<h3>Implementing <code>createBlockRecord()</code> in <code>utilities.cpp</code></h3>
+<p>Add the following function description:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="cm">//
+// Create a new block table record and add the entities of the employee to it
+//
+// In :
+// const TCHAR* name : Name of block table record
+//</span></code></pre></div>
+
+<h4>Algorithm for <code>createBlockRecord()</code></h4>
+<ol>
+<li>Get the block table from the current working database (<code>AcDbBlockTable</code>,
+<code>AcDbDatabase::getBlockTable()</code>).</li>
+<li>Check if the block table record already exists (<code>AcDbBlockTable::has()</code>). If it exists,
+return an error status (<code>Acad::eDuplicateKey</code>). Don't forget to close the block table.</li>
+<li>Create a new block table record with the <code>new</code> operator and add it to the block table
+(<code>AcDbBlockTableRecord</code>, <code>AcDbBlockTable::add()</code>). (Since we modify the block table it
+must be opened for write). Initialize the new block table record. Set the origin to <code>(0,0,0)</code>
+(<code>AcDbBlockTableRecord::setOrigin(AcGePoint3d::kOrigin)</code>). Set its name. If the block table
+record was successfully added to the AutoCAD database, you can close the block table.</li>
+<li>Create the "EMPLOYEE" entities and append them to the new block table record
+(<code>AcDbBlockTableRecord::appendAcDbEntity()</code>). The "EMPLOYEE" entities are three circles
+(<code>AcDbCircle</code>) and an arc (<code>AcDbArc</code>) with the characteristics outlined in the table
+below. Make the face yellow, eyes blue, and mouth red (<code>AcDbEntity::setColorIndex()</code>).</li>
+<li>Don't forget to close the newly created entities, block table record and block table.</li>
+<li><code>PI</code> can be defined as <code>3.141592654</code>.</li>
+</ol>
+
+<h3>Data for "EMPLOYEE" block definition</h3>
+<p>Block name <code>EMPLOYEE</code>. Block origin <code>(0, 0, 0)</code>.</p>
+<table>
+<thead><tr><th>Part</th><th>Entity (colour)</th><th>Centre</th><th>Radius</th><th>Start angle</th><th>End angle</th></tr></thead>
+<tbody>
+<tr><td>Face</td><td>AcDbCircle (yellow)</td><td>(0, 0, 0)</td><td>1.0</td><td>—</td><td>—</td></tr>
+<tr><td>Left eye</td><td>AcDbCircle (blue)</td><td>(0.33, 0.25, 0)</td><td>0.1</td><td>—</td><td>—</td></tr>
+<tr><td>Right eye</td><td>AcDbCircle (blue)</td><td>(-0.33, 0.25, 0)</td><td>0.1</td><td>—</td><td>—</td></tr>
+<tr><td>Mouth</td><td>AcDbArc (red)</td><td>(0, 0.5, 0)</td><td>1.0</td><td>PI + (PI × 0.3)</td><td>PI + (PI × 0.7)</td></tr>
+</tbody>
+</table>
+<div class="callout tip">
+<p><span class="lbl">No extra includes needed.</span> <code>AcDbLayerTable</code>/<code>AcDbLayerTableRecord</code>
+require the include file <code>&lt;dbsymtb.h&gt;</code>, and <code>AcDbCircle</code>/<code>AcDbArc</code>
+require <code>&lt;dbents.h&gt;</code> — but you don't have to add either include. That's because
+<code>StdAfx.h</code> (included from <code>utilities.h</code>) already includes <code>arxHeaders.h</code>,
+which has include statements for every ObjectARX header.</p>
+</div>
+
+<p>Try to implement these two functions yourself. Don't forget the ObjectARX online help. If you get stuck,
+compare against <code>Solutions\Lesson4_Solved</code> and study the code in <code>utilities.cpp</code>.</p>
+</section>
+
+<section id="l4-cmds">
+<h2>Step 3 — The CREATE and SETLAYER commands</h2>
+<p>After implementing the utility functions, create two new commands named <code>CREATE</code> and
+<code>SETLAYER</code>. To use the utility functions in your commands, add this to
+<code>acrxEntryPoint.cpp</code>:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">#include</span> <span class="str">"utilities.h"</span></code></pre></div>
+
+<h3>Implementation of the commands</h3>
+<hr>
+<h4>Command "CREATE"</h4>
+<p>Create a function named <code>AdskLesson4_CREATE()</code> in <code>acrxEntryPoint.cpp</code>, which will
+be called when the command <code>CREATE</code> is executed. Implement the following in the function
+<code>AdskLesson4_CREATE()</code>.</p>
+<h5>Algorithm</h5>
+<ol>
+<li>The implementation will call our user defined utility function <code>createLayer()</code> with
+parameter <code>"USER"</code> as layer name, and user defined function <code>createBlockRecord()</code>
+with parameter <code>"EMPLOYEE"</code> as block name.</li>
+<li>After the layer table changes, call the ObjectARX global function
+<code>applyCurDwgLayerTableChanges()</code>. This function will force AutoCAD to update itself to use any
+changes made to any layer table records in the drawing currently in the AutoCAD editor.</li>
+</ol>
+
+<hr>
+<h4>Command "SETLAYER"</h4>
+<p>Create a function named <code>AdskLesson4_SETLAYER()</code> in <code>acrxEntryPoint.cpp</code>, which
+will be called when the command <code>SETLAYER</code> is executed. Implement the following in the function
+<code>AdskLesson4_SETLAYER()</code> (which changes the layer of "EMPLOYEE" block references).</p>
+<h5>Algorithm</h5>
+<ol>
+<li>Open the block table of the current working database.</li>
+<li>Get the MODEL SPACE block table record (<code>AcDbBlockTable::getAt()</code>,
+<code>ACDB_MODEL_SPACE</code>).</li>
+<li>Obtain a block table record iterator (<code>AcDbBlockTableRecordIterator</code>,
+<code>AcDbBlockTableRecord::newIterator()</code>) to iterate through the MODEL SPACE block table
+record.</li>
+<li>Iterate through the MODEL_SPACE (<code>AcDbBlockTableRecordIterator::start()</code>,
+<code>AcDbBlockTableRecordIterator::done()</code>, <code>AcDbBlockTableRecordIterator::step()</code>).</li>
+<li>To open objects for read or write operations use <code>acdbOpenObject()</code>.</li>
+<li>Obtain the entity (<code>AcDbBlockTableRecordIterator::getEntity()</code>).</li>
+<li>Check if the entity is a block reference (<code>pEnt-&gt;isA() != AcDbBlockReference::desc()</code>).</li>
+<li>Obtain the block table record of the reference (<code>AcDbBlockReference::blockTableRecord()</code>)
+and check if the block table record's name is <code>"EMPLOYEE"</code>.</li>
+<li>Change the layer (<code>setLayer()</code>).</li>
+<li>Don't forget to close any objects you opened and delete the iterator!</li>
+</ol>
+
+<div class="callout tip">
+<p><span class="lbl">Naming reminder.</span> The function name is <em>group + global command name</em> — the
+same idea as Lesson 3's <code>ADSKArxLesson3_MyInput</code>. Group <code>AdskLesson4</code> + global command
+<code>_CREATE</code> → <code>AdskLesson4_CREATE()</code>; group <code>AdskLesson4</code> + global command
+<code>_SETLAYER</code> → <code>AdskLesson4_SETLAYER()</code>:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>ACED_ARXCOMMAND_ENTRY_AUTO(CLesson4App, AdskLesson4, _CREATE,   CREATE,   ACRX_CMD_TRANSPARENT, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CLesson4App, AdskLesson4, _SETLAYER, SETLAYER, ACRX_CMD_TRANSPARENT, NULL)</code></pre></div>
+</div>
+
+<p>Try to implement all the above functions yourself. Don't forget the ObjectARX online help for quick
+reference. If you get stuck, compare against <code>Solutions\Lesson4_Solved</code> and study the code in
+the <code>acrxEntryPoint.cpp</code> file.</p>
+</section>
+
+<section id="l4-run">
+<h2>Step 4 — Build &amp; test</h2>
+<ol>
+<li>Build <strong>x64 Debug</strong> and <code>APPLOAD</code> the <code>.arx</code> in a <strong>new
+drawing</strong>.</li>
+<li>Run <code>CREATE</code> — it makes the <code>USER</code> layer and the <code>EMPLOYEE</code> block.</li>
+<li>Run LAYER command to check the new layer and run BLOCKSPALETTE command to see the new block</li>
+<li>Run AutoCAD's <code>INSERT</code> command and place one or more <code>EMPLOYEE</code> blocks on layer
+<code>0</code>.</li>
+<li>Run <code>SETLAYER</code> — the EMPLOYEE blocks move to the <code>USER</code> layer.</li>
+<li>Check with the <code>LIST</code> command (it shows each object's layer), or toggle layers with
+<code>LAYER</code>.</li>
+</ol>
+
+<figure class="shot">
+  <img src="images/l4-02-setlayer.png" alt="SETLAYER result" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l4-02-setlayer.png</code></div>
+    <div>After SETLAYER — LIST showing EMPLOYEE references now on layer USER.</div></div>
+  <figcaption><span class="fig">Lesson 4, Figure 2</span> — EMPLOYEE blocks moved to the USER layer.</figcaption>
+</figure>
+
+<p>You've now created database objects and modified existing ones — the foundation for almost everything
+else in ObjectARX. Stuck on any function? Compare with
+<a href="Solutions/Lesson4_Solved.zip" download>Solutions\Lesson4_Solved.zip</a>.</p>
+</section>
+
+<!-- ============ LESSON 5 ============ -->
+<section id="l5-intro">
+<div class="band">
+  <div class="kicker">Lesson 5 · Storing your own data</div>
+  <h1>Dictionaries &amp; Xrecords</h1>
+</div>
+
+<p>Lesson 4 created <em>graphical</em> objects. This lesson stores <strong>non-graphical data</strong> — a
+list of names — inside the drawing itself, so it's saved with the DWG and available every time the file is
+opened.</p>
+
+<p>Two building blocks make this possible:</p>
+<ul>
+<li><strong>The Named Objects Dictionary (NOD)</strong> — a top-level dictionary that every drawing has,
+where plug-ins store non-graphical data under named keys.</li>
+<li><strong><code>AcDbXrecord</code></strong> — a flexible object for holding arbitrary data. It is a much
+improved mechanism for storing data than the older (and still used) Extended Entity Data.</li>
+</ul>
+
+<p><span class="lbl">Recommended pattern.</span> Rather than dropping items straight into the NOD, the
+recommended approach is to create your own <strong>base-level <code>AcDbDictionary</code></strong> inside
+the NOD and then populate <em>that</em> with your data. Here you'll create a base-level dictionary keyed
+<code>ADSK_EMPLOYEE_DICTIONARY</code> to hold employee records, storing each employee as an (empty)
+<code>AcDbXrecord</code> under the employee's name. Keeping the records together in one dictionary lets you
+iterate through every employee quickly and easily.</p>
+
+<p>You'll add three commands that manage this employee dictionary:</p>
+
+<p><strong><code>ADDENTRY</code></strong></p>
+<ul>
+<li>Checks whether the base-level dictionary <code>ADSK_EMPLOYEE_DICTIONARY</code> exists in the NOD; if it
+does not, <code>ADDENTRY</code> creates it.</li>
+<li>Prompts for an employee name and adds an <code>AcDbXrecord</code> for that employee. If the employee
+already exists in <code>ADSK_EMPLOYEE_DICTIONARY</code>, the request is ignored.</li>
+</ul>
+
+<p><strong><code>LISTENTRIES</code></strong></p>
+<ul>
+<li>Checks whether the base-level dictionary exists; if it does not, the command stops.</li>
+<li>Uses an <code>AcDbDictionaryIterator</code> to step through the entries and print the name of every
+employee stored there.</li>
+</ul>
+
+<p><strong><code>REMOVEENTRY</code></strong></p>
+<ul>
+<li>Prompts the user for an employee name.</li>
+<li>Checks whether the base-level dictionary exists in the NOD; if it does not, the command stops.</li>
+<li>Removes that employee's entry if it is present.</li>
+</ul>
+
+<p>The object relationship you're building inside the drawing:</p>
+<pre><code>NOD (AcDbDictionary)
+  |_ "ADSK_EMPLOYEE_DICTIONARY" (AcDbDictionary)
+        |_ "Charles"   (AcDbXrecord)
+        |_ "Cyrille"   (AcDbXrecord)
+        |_ "Mikako"    (AcDbXrecord)
+        |_ "Fenton"    (AcDbXrecord)
+        |_ "Gopinath"  (AcDbXrecord)
+        |_ "Kean"      (AcDbXrecord)
+        |_ "Varadan"   (AcDbXrecord)</code></pre>
+
+<div class="callout warn">
+<p><span class="lbl">Same golden rule as Lesson 4.</span> Every object you open must be
+<strong>closed</strong>, and every iterator you create must be <strong>deleted</strong>. Leaking open
+objects crashes AutoCAD.</p>
+</div>
+
+<div class="callout tip">
+<p><span class="lbl">Learn-by-doing.</span> This lesson gives you the <em>algorithm</em> for each command,
+not the finished code. Try writing them yourself; a complete solution is in
+<code>Solutions\Lesson5_Solved</code>.</p>
+</div>
+
+<h3>New classes you'll meet</h3>
+<table>
+<thead><tr><th>Class / call</th><th>What it represents</th></tr></thead>
+<tbody>
+<tr><td><code>AcDbDatabase::getNamedObjectsDictionary()</code></td><td>Gets the drawing's top-level NOD.</td></tr>
+<tr><td><code>AcDbDictionary</code></td><td>A set of key → object entries (`getAt`, `setAt`, `has`, `newIterator`).</td></tr>
+<tr><td><code>AcDbXrecord</code></td><td>The data object stored under each employee name.</td></tr>
+<tr><td><code>AcDbDictionaryIterator</code></td><td>Steps through a dictionary's entries (`done`, `next`, `name`).</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="l5-project">
+<h2>Step 1 — Create the template project (with the skill)</h2>
+<p>As before, scaffold the project with the Claude Code skill from Lesson 2:</p>
+<pre><code>/acad-arx-wizard
+create a simple ObjectARX arx project called Lesson5 in C:\Users\&lt;you&gt;\source\repos</code></pre>
+<p>No extra source files are needed this time — all three commands live directly in
+<code>acrxEntryPoint.cpp</code>.</p>
+</section>
+
+<section id="l5-cmds">
+<h2>Step 2 — The three commands</h2>
+<p>Add a function per command in <code>acrxEntryPoint.cpp</code> and register each with
+<code>ACED_ARXCOMMAND_ENTRY_AUTO</code> (the Lesson 2 pattern). They all work on a sub-dictionary keyed
+<code>ADSK_EMPLOYEE_DICTIONARY</code>.</p>
+
+<h3><code>ADDENTRY</code> — algorithm</h3>
+<ol>
+<li>Prompt for an employee name (<code>acedGetString()</code>).</li>
+<li>Get the NOD (<code>AcDbDatabase::getNamedObjectsDictionary()</code>).</li>
+<li>Look for <code>ADSK_EMPLOYEE_DICTIONARY</code> (<code>AcDbDictionary::getAt()</code>). If it isn't there,
+create a new <code>AcDbDictionary</code> and add it to the NOD with <code>AcDbDictionary::setAt()</code>
+(open the NOD for write first).</li>
+<li>If the employee name isn't already present (<code>AcDbDictionary::has()</code>), create a new
+<code>AcDbXrecord</code> and add it under that name with <code>AcDbDictionary::setAt()</code>.</li>
+<li><strong>Close</strong> the NOD, the employee dictionary, and the Xrecord.</li>
+</ol>
+
+<h3><code>LISTENTRIES</code> — algorithm</h3>
+<ol>
+<li>Get the NOD (<code>AcDbDatabase::getNamedObjectsDictionary()</code>) and then the
+<code>ADSK_EMPLOYEE_DICTIONARY</code> (<code>AcDbDictionary::getAt()</code>). If it doesn't exist, print a
+message and stop.</li>
+<li>Create an iterator (<code>AcDbDictionary::newIterator()</code>).</li>
+<li>Walk it with <code>AcDbDictionaryIterator::done()</code> / <code>AcDbDictionaryIterator::next()</code>,
+printing each key with <code>AcDbDictionaryIterator::name()</code>.</li>
+<li><strong>Delete</strong> the iterator and <strong>close</strong> the dictionary.</li>
+</ol>
+
+<h3><code>REMOVEENTRY</code> — algorithm</h3>
+<ol>
+<li>Prompt for a name (<code>acedGetString()</code>).</li>
+<li>Get the NOD (<code>AcDbDatabase::getNamedObjectsDictionary()</code>), then the
+<code>ADSK_EMPLOYEE_DICTIONARY</code> (<code>AcDbDictionary::getAt()</code>, opened for write).</li>
+<li>Find the entry (<code>AcDbDictionary::getAt()</code>). If it exists, open its <code>AcDbXrecord</code>
+for write and <code>AcDbObject::erase()</code> it.</li>
+<li><strong>Close</strong> everything you opened.</li>
+</ol>
+
+<div class="callout tip">
+<p><span class="lbl">Naming reminder.</span> The function name is <em>group + command</em>: for
+<code>ADDENTRY</code> in group <code>AdskMyGroup</code>, the function is <code>AdskMyGroupADDENTRY()</code>.</p>
+</div>
+</section>
+
+<section id="l5-run">
+<h2>Step 3 — Build &amp; test</h2>
+<ol>
+<li>Build <strong>x64 Debug</strong> and <code>APPLOAD</code> the <code>.arx</code>.</li>
+<li>Run <code>ADDENTRY</code> a few times with different names (try a duplicate — it's ignored).</li>
+<li>Run <code>LISTENTRIES</code> to print them all.</li>
+<li>Run <code>REMOVEENTRY</code> for one name, then <code>LISTENTRIES</code> again to confirm it's gone.</li>
+<li><strong>Save the drawing, close it, and reopen it</strong>, then run <code>LISTENTRIES</code> — your data
+is still there, because it lives in the drawing's dictionary.</li>
+</ol>
+
+<figure class="shot">
+  <img src="images/l5-01-listentries.png" alt="LISTENTRIES output" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l5-01-listentries.png</code></div>
+    <div>The command line after LISTENTRIES, showing the stored employee names.</div></div>
+  <figcaption><span class="fig">Lesson 5, Figure 1</span> — Employee names read back from the drawing.</figcaption>
+</figure>
+
+<p>You can now persist your own data inside a drawing — the basis for plug-ins that remember settings,
+records, and relationships. Stuck on any command? Compare with
+<a href="Solutions/Lesson5_Solved.zip" download>Solutions\Lesson5_Solved.zip</a>.</p>
+
+<div class="next">▶ Next: <a href="#l6-intro">Lesson 6 — Custom Objects &amp; Extension Dictionaries</a></div>
+</section>
+
+<!-- ============ LESSON 6 ============ -->
+<section id="l6-intro">
+<div class="band">
+  <div class="kicker">Lesson 6 · Custom objects &amp; extension dictionaries</div>
+  <h1>Custom Objects — DB/UI Separation</h1>
+</div>
+
+<p>Lesson 5 stored plain names as <code>AcDbXrecord</code> entries in the Named Objects Dictionary. This
+lesson goes further: you define your own <strong>custom object class</strong> — <code>AdkEmployeeDetails</code>
+— derived from <code>AcDbObject</code>, and attach it to an <strong>EMPLOYEE block reference</strong> through
+that block's <strong>extension dictionary</strong>.</p>
+
+<p>You'll also meet <strong>DB/UI separation</strong>: two modules working together —</p>
+<ul>
+<li><strong>ObjectDBX (<code>.dbx</code>)</strong> — the <em>database</em> half. Defines and registers the
+custom object class. No AutoCAD command-line UI required.</li>
+<li><strong>ObjectARX (<code>.arx</code>)</strong> — the <em>user-interface</em> half. Provides the commands
+that create, read, and erase <code>AdkEmployeeDetails</code> objects on block references.</li>
+</ul>
+
+<p>The object relationship you are building on each EMPLOYEE block reference:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>Employee (AcDbBlockReference)
+  |_ Extension Dictionary (AcDbDictionary)
+        |_ "ADSK_EMPLOYEE_DICTIONARY" (AcDbDictionary)
+              |_ "DETAILS" (AdkEmployeeDetails)</code></pre></div>
+
+<p>You'll implement three commands in the ARX module:</p>
+
+<p><strong><code>ADDDETAIL</code></strong></p>
+<ul>
+<li>Prompt the user to select an EMPLOYEE block reference.</li>
+<li>Prompt for employee ID, cube number, first name, and last name.</li>
+<li>Ensure the block has an extension dictionary and an
+<code>ADSK_EMPLOYEE_DICTIONARY</code> sub-dictionary.</li>
+<li>If no <code>AdkEmployeeDetails</code> exists under the key <code>"DETAILS"</code>, create one, fill it
+in, and store it in the dictionary.</li>
+</ul>
+
+<p><strong><code>LISTDETAILS</code></strong></p>
+<ul>
+<li>Select an EMPLOYEE block reference.</li>
+<li>Walk the extension dictionary → <code>ADSK_EMPLOYEE_DICTIONARY</code> → <code>"DETAILS"</code>.</li>
+<li>If an <code>AdkEmployeeDetails</code> object exists, read its fields and print them.</li>
+</ul>
+
+<p><strong><code>REMOVEDETAIL</code></strong></p>
+<ul>
+<li>Select an EMPLOYEE block reference.</li>
+<li>Retrieve and erase the <code>AdkEmployeeDetails</code> under <code>"DETAILS"</code>.</li>
+<li>If the dictionaries are now empty, erase them too.</li>
+</ul>
+
+<div class="callout warn">
+<p><span class="lbl">Same golden rule as Lessons 4 and 5.</span> Every object you open must be
+<strong>closed</strong>. Custom objects opened for read or write must be closed on every code path.</p>
+</div>
+
+<div class="callout tip">
+<p><span class="lbl">Starting point — ARX template. </span> Begin with the <strong>Lesson 6 ARX
+template</strong>: an ObjectARX project named <code>Lesson6</code> that already contains the code same as Lesson4(with CREATE and SETLAYER commands). 
+From the Solutions, unzip <code>Lesson6_template.zip</code> and open its ARX project. You will add the <strong>EmployeeDetails</strong>
+DBX module yourself in the next steps — using the <code>acad-arx-wizard</code> skill instead of the 
+Visual Studio ObjectARX wizard(used till AutoCAD 2026).</p>
+</div>
+
+<div class="callout tip">
+<p><span class="lbl">Learn-by-doing.</span> Steps 3–6 give you the <em>algorithms</em> and key code
+snippets, not the finished implementation. Try writing the code yourself; a complete solution is in
+<code>Solutions\Lesson6_Solved</code>.</p>
+</div>
+
+<h3>Folder layout when you're done</h3>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>Lesson6\                 ← your working folder
+  Lesson6\               ← ARX template (UI commands)
+  EmployeeDetails\       ← DBX module (custom object) — created by skill</code></pre></div>
+</section>
+
+<section id="l6-dbxproj">
+<h2>Step 1 — Create the DBX project (with the skill)</h2>
+<p>The classic Visual Studio flow — <strong>File → New → Project → ObjectARX/DBX</strong> — is broken in
+Visual Studio 2026. Use the same <code>acad-arx-wizard</code> skill from Lesson 2 instead.</p>
+
+<p>In Claude Code:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>/acad-arx-wizard
+Create an ObjectDBX project named EmployeeDetails inside
+C:\Users\&lt;you&gt;\source\repos\Lesson6. AppType = dbx, MFC = none.</code></pre></div>
+
+<p>Behind the scenes the skill runs something like:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>New-ArxApp.ps1 -ProjectName EmployeeDetails `
+    -OutputPath  "C:\Users\&lt;you&gt;\source\repos\Lesson6" `
+    -AppType     dbx `
+    -MfcMode     none</code></pre></div>
+
+<p>That generates a self-contained DBX project folder with <code>acrxEntryPoint.cpp</code>,
+<code>EmployeeDetails.vcxproj</code>, property sheets, and the usual ObjectARX boilerplate — the same files
+the old wizard would have produced.</p>
+
+<h3>Add the DBX project to your existing solution</h3>
+<p>The skill creates the project on disk; it does <em>not</em> attach it to your open solution automatically.
+In Visual Studio, with the <code>Lesson6</code> ARX template already open:</p>
+<ol>
+<li>In <strong>Solution Explorer</strong>, right-click the <strong>Solution</strong> node → <strong>Add →
+Existing Project…</strong></li>
+<li>Select <code>EmployeeDetails\EmployeeDetails.vcxproj</code>.</li>
+</ol>
+<p>Your solution should now contain two projects: <code>Lesson6</code> (ARX) and
+<code>EmployeeDetails</code> (DBX).</p>
+
+<div class="callout tip">
+<p><span class="lbl">Output names.</span> With the default RDS prefix <code>Adk</code>, the built module is
+<code>AdkEmployeeDetails.dbx</code> and the import library is <code>AdkEmployeeDetails.lib</code>. The
+<em>class</em> is still named <code>AdkEmployeeDetails</code> — class name and DLL prefix are independent.</p>
+</div>
+
+<figure class="shot">
+  <img src="images/l6-01-dbxproj.png" alt="DBX project in solution" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l6-01-dbxproj.png</code></div>
+    <div>Solution Explorer showing Lesson6 (ARX) and EmployeeDetails (DBX) in one solution.</div></div>
+  <figcaption><span class="fig">Lesson 6, Figure 1</span> — Both modules in one solution.</figcaption>
+</figure>
+</section>
+
+<section id="l6-class">
+<h2>Step 2 — Scaffold the custom object class (with the skill)</h2>
+<p>Instead of <strong>Add → New Item → ObjectDBX Custom Object Class Wizard</strong>, ask the skill to
+generate the class pair:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>/acad-arx-wizard
+In the EmployeeDetails project, add a custom object class named AdkEmployeeDetails
+derived from AcDbObject, with Dwg and Dxf filing protocols.</code></pre></div>
+
+<p>Equivalent PowerShell:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>New-ArxCustomObject.ps1 -ClassName   AdkEmployeeDetails `
+    -BaseClass   AcDbObject `
+    -Protocols   1 `
+    -ProjectName EmployeeDetails `
+    -OutputPath  "C:\Users\&lt;you&gt;\source\repos\Lesson6\EmployeeDetails"</code></pre></div>
+
+<p><code>-Protocols 1</code> stubs out the <code>AcDbObject</code> filing methods only —
+<code>dwgInFields</code>, <code>dwgOutFields</code>, <code>dxfInFields</code>, and
+<code>dxfOutFields</code> — matching what the old wizard offered on the Protocols tab.</p>
+
+<p>The skill writes <code>AdkEmployeeDetails.h</code> and <code>AdkEmployeeDetails.cpp</code> and adds them
+to <code>EmployeeDetails.vcxproj</code> automatically.</p>
+
+<h3>Register the DBX service name</h3>
+<p>Open <code>AdkEmployeeDetails.h</code> and add a constant the ARX module will use to locate this DBX
+at runtime. Place it near the top of the header (after the includes):</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">#define</span> ADKEMPLOYEEDETAILS_DBXSERVICE ACRX_T(<span class="str">"ADKEMPLOYEEDETAILS_DBXSERVICE"</span>)</code></pre></div>
+
+<p>The scaffold also emits the class-registration macro at the bottom of the header:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">#ifdef</span> EMPLOYEEDETAILS_MODULE
+ACDB_REGISTER_OBJECT_ENTRY_AUTO(AdkEmployeeDetails)
+<span class="kw">#endif</span></code></pre></div>
+<p>That macro registers and unregisters <code>AdkEmployeeDetails</code> with the ObjectARX runtime class
+tree when the DBX module loads and unloads — you do not need to call <code>rxInit()</code> by hand.</p>
+</section>
+
+<section id="l6-members">
+<h2>Step 3 — Members &amp; accessors</h2>
+<p>Open <code>AdkEmployeeDetails.h</code>. The skill scaffold already declared the dwg/dxf filing stubs.
+Now add the data members and accessor functions.</p>
+
+<h3>Member variables</h3>
+<table>
+<thead><tr><th>Variable</th><th>Type</th><th>DXF code</th></tr></thead>
+<tbody>
+<tr><td><code>m_lastName</code></td><td><code>TCHAR*</code></td><td><code>300</code></td></tr>
+<tr><td><code>m_firstName</code></td><td><code>TCHAR*</code></td><td><code>301</code></td></tr>
+<tr><td><code>m_cube</code></td><td><code>Adesk::Int32</code></td><td><code>90</code></td></tr>
+<tr><td><code>m_ID</code></td><td><code>Adesk::Int32</code></td><td><code>91</code></td></tr>
+</tbody>
+</table>
+
+<ol>
+<li>In <code>AdkEmployeeDetails.h</code>, add to the class declaration:</li>
+</ol>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">private</span>:
+    Adesk::Int32 m_ID;
+    Adesk::Int32 m_cube;
+    TCHAR*       m_firstName;
+    TCHAR*       m_lastName;</code></pre></div>
+
+<ol start="2">
+<li>In <code>AdkEmployeeDetails.cpp</code>, implement the constructor:</li>
+</ol>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>AdkEmployeeDetails::AdkEmployeeDetails() : AcDbObject()
+{
+    <span class="cm">// Initialize.</span>
+    m_cube = 0;
+    m_ID = 0;
+    m_firstName = NULL;
+    m_lastName  = NULL;
+}</code></pre></div>
+
+<ol start="3">
+<li>Add public accessor/mutator declarations in the header:</li>
+</ol>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">public</span>:
+    Acad::ErrorStatus setID       (<span class="kw">const</span> Adesk::Int32 ID);
+    Acad::ErrorStatus iD          (Adesk::Int32&amp; ID);
+    Acad::ErrorStatus setCube     (<span class="kw">const</span> Adesk::Int32 cube);
+    Acad::ErrorStatus cube        (Adesk::Int32&amp; cube);
+    Acad::ErrorStatus setFirstName(<span class="kw">const</span> TCHAR* firstName);
+    Acad::ErrorStatus firstName   (TCHAR*&amp; firstName);
+    Acad::ErrorStatus setLastName (<span class="kw">const</span> TCHAR* lastName);
+    Acad::ErrorStatus lastName    (TCHAR*&amp; lastName);</code></pre></div>
+
+<ol start="4">
+<li>Implement the accessors in <code>AdkEmployeeDetails.cpp</code>. Here is the pattern for
+<code>firstName()</code> / <code>setFirstName()</code> — implement the remaining six functions the same
+way:</li>
+</ol>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>Acad::ErrorStatus AdkEmployeeDetails::firstName(TCHAR*&amp; firstName)
+{
+    assertReadEnabled();
+    firstName = _tcsdup(m_firstName);
+    <span class="kw">return</span> Acad::eOk;
+}
+
+Acad::ErrorStatus AdkEmployeeDetails::setFirstName(<span class="kw">const</span> TCHAR* firstName)
+{
+    assertWriteEnabled();
+    <span class="kw">if</span> (m_firstName)
+        free(m_firstName);
+    m_firstName = _tcsdup(firstName);
+    <span class="kw">return</span> Acad::eOk;
+}</code></pre></div>
+
+<div class="callout warn">
+<p><span class="lbl">Read/write guards.</span> Call <code>assertReadEnabled()</code> before reading any member
+data, and <code>assertWriteEnabled()</code> before modifying it. These check that the object is open at the
+correct access level; if not, they throw so the user can still save the drawing.</p>
+</div>
+
+<p>You must also implement the dwg/dxf filing methods so your data persists in the DWG. Fill in
+<code>dwgInFields</code>, <code>dwgOutFields</code>, <code>dxfInFields</code>, and
+<code>dxfOutFields</code> to read and write the four members using the DXF codes in the table above.
+Refer to the ObjectARX Developer's Guide for filer API details.</p>
+
+<div class="callout tip">
+<p><span class="lbl">Build warning treated as an error?</span> If your build fails on a warning inside
+<code>Acad::ErrorStatus AdkEmployeeDetails::dxfInFields(AcDbDxfFiler* pFiler)</code> — typically an
+unhandled-case warning on the DXF code <code>switch</code> — compare your <code>switch</code> against
+<code>Solutions\Lesson6_Solved</code> to see how it manages the <code>default</code> case.</p>
+</div>
+</section>
+
+<section id="l6-register">
+<h2>Step 4 — Register &amp; build the DBX module</h2>
+<p>Open <code>EmployeeDetails\acrxEntryPoint.cpp</code> and register your DBX as a named service when the
+module loads. Include the custom-object header at the top:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">#include</span> <span class="str">"AdkEmployeeDetails.h"</span></code></pre></div>
+
+<p>In <code>On_kInitAppMsg()</code> and <code>On_kUnloadAppMsg()</code> of the
+<code>CEmployeeDetailsApp</code> class:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">virtual</span> AcRx::AppRetCode On_kInitAppMsg (<span class="kw">void</span>* pkt)
+{
+    AcRx::AppRetCode retCode = AcRxDbxApp::On_kInitAppMsg(pkt);
+    <span class="cm">// Register so the ARX module can find us.</span>
+    acrxRegisterService(ADKEMPLOYEEDETAILS_DBXSERVICE);
+    <span class="kw">return</span> retCode;
+}
+
+<span class="kw">virtual</span> AcRx::AppRetCode On_kUnloadAppMsg (<span class="kw">void</span>* pkt)
+{
+    AcRx::AppRetCode retCode = AcRxDbxApp::On_kUnloadAppMsg(pkt);
+    <span class="kw">delete</span> acrxServiceDictionary->remove(ADKEMPLOYEEDETAILS_DBXSERVICE);
+    <span class="kw">return</span> retCode;
+}</code></pre></div>
+
+<p><strong>Build the DBX project first.</strong> Right-click <code>EmployeeDetails</code> in Solution Explorer
+→ <strong>Build</strong>. Confirm the output: <code>EmployeeDetails\x64\Debug\AdkEmployeeDetails.dbx</code>
+(and <code>AdkEmployeeDetails.lib</code> in the same folder).</p>
+</section>
+
+<section id="l6-cmds">
+<h2>Step 5 — The ARX commands</h2>
+<p>Switch to the <code>Lesson6</code> ARX project from your template. Add a function per command in
+<code>acrxEntryPoint.cpp</code> and register each with <code>ACED_ARXCOMMAND_ENTRY_AUTO</code> (the Lesson 2
+pattern).</p>
+
+<h3><code>ADDDETAIL</code> — algorithm</h3>
+<ol>
+<li>Let the user select a block reference (<code>acedEntSel()</code>).
+  <ol type="a">
+  <li>Convert the <code>ads_name</code> to an <code>AcDbObjectId</code> (<code>acdbGetObjectId()</code>).</li>
+  <li>Open the object (<code>acdbOpenAcDbObject()</code> or <code>acdbOpenObject()</code>).</li>
+  <li>Verify it is a block reference (<code>isKindOf(AcDbBlockReference::desc())</code>). Return if not.</li>
+  </ol>
+</li>
+<li>Prompt for employee ID, cube, first name, and last name (<code>acedGetInt()</code>,
+<code>acedGetString()</code>).</li>
+<li>Get the block's extension dictionary (<code>AcDbObject::extensionDictionary()</code>). Create one if
+missing (<code>createExtensionDictionary()</code>).</li>
+<li>Open the extension dictionary for write. If it was previously erased, unerase it
+(<code>erase(Adesk::kFalse)</code>).</li>
+<li>Retrieve or create <code>"ADSK_EMPLOYEE_DICTIONARY"</code> inside the extension dictionary
+(<code>AcDbDictionary::getAt()</code> / <code>setAt()</code>).</li>
+<li>Check whether an <code>AdkEmployeeDetails</code> already exists under the key
+<code>"DETAILS"</code>.
+  <ol type="a">
+  <li>If not, create a new <code>AdkEmployeeDetails</code>, set its data via the accessors, and
+  <code>setAt("DETAILS", ...)</code> into <code>ADSK_EMPLOYEE_DICTIONARY</code>.</li>
+  </ol>
+</li>
+<li><strong>Close</strong> every object you opened.</li>
+</ol>
+
+<h3><code>LISTDETAILS</code> — algorithm</h3>
+<ol>
+<li>Select a block reference (same selection steps as above).</li>
+<li>Retrieve the extension dictionary. If none, return.</li>
+<li>Retrieve <code>"ADSK_EMPLOYEE_DICTIONARY"</code>. If none, return.</li>
+<li>Retrieve the <code>AdkEmployeeDetails</code> under <code>"DETAILS"</code>.</li>
+<li>Read its fields through the accessor functions and print them with <code>acutPrintf()</code>.</li>
+<li><strong>Close</strong> everything you opened.</li>
+</ol>
+
+<h3><code>REMOVEDETAIL</code> — algorithm</h3>
+<ol>
+<li>Select a block reference (same selection steps as above).</li>
+<li>Walk extension dictionary → <code>ADSK_EMPLOYEE_DICTIONARY</code> → <code>"DETAILS"</code>. Return if
+any step is missing.</li>
+<li>Open the <code>AdkEmployeeDetails</code> for write and <code>erase()</code> it.</li>
+<li>If a dictionary now has zero entries (<code>AcDbDictionary::numEntries()</code>), erase that dictionary
+too (inner first, then extension dictionary).</li>
+<li><strong>Close</strong> everything you opened.</li>
+</ol>
+
+<p>Register the three commands at the bottom of <code>acrxEntryPoint.cpp</code>:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>ACED_ARXCOMMAND_ENTRY_AUTO(CLesson6App, AdkLesson6, _ADDDETAIL,    ADDDETAIL,    ACRX_CMD_TRANSPARENT, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CLesson6App, AdkLesson6, _LISTDETAILS,  LISTDETAILS,  ACRX_CMD_TRANSPARENT, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CLesson6App, AdkLesson6, _REMOVEDETAIL, REMOVEDETAIL, ACRX_CMD_TRANSPARENT, NULL)</code></pre></div>
+
+<div class="callout tip">
+<p><span class="lbl">Naming reminder.</span> Function name = group + global command. Group <code>AdkLesson6</code>
++ global command <code>_ADDDETAIL</code> → <code>AdkLesson6_ADDDETAIL()</code>, and the same pattern for
+<code>_LISTDETAILS</code> and <code>_REMOVEDETAIL</code>.</p>
+</div>
+</section>
+
+<section id="l6-load">
+<h2>Step 6 — Load the DBX from the ARX module</h2>
+<p>After building the DBX, wire the ARX project so it can use the custom object at runtime.</p>
+
+<ol>
+<li>In <code>Lesson6\StdAfx.h</code>, include the custom-object header from the sibling project:
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">#include</span> <span class="str">"..\EmployeeDetails\AdkEmployeeDetails.h"</span></code></pre></div>
+</li>
+<li>In the ARX project's linker settings, add <code>AdkEmployeeDetails.lib</code> to
+<strong>Linker → Input → Additional Dependencies</strong>, and add the folder that contains the
+<code>.lib</code> (typically <code>EmployeeDetails\x64\Debug</code>) to
+<strong>Linker → General → Additional Library Directories</strong>.</li>
+<li>In <code>Lesson6\acrxEntryPoint.cpp</code>, inside <code>On_kInitAppMsg()</code> of
+<code>CLesson6App</code>, load the DBX module if its service is not already registered:</li>
+</ol>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>AcRxObject* pSvc;
+<span class="kw">if</span> ( !(pSvc = acrxServiceDictionary->at(ADKEMPLOYEEDETAILS_DBXSERVICE)) )
+{
+    <span class="kw">if</span> ( !acrxDynamicLinker->loadModule(ACRX_T(<span class="str">"AdkEmployeeDetails.dbx"</span>), 0) )
+    {
+        acutPrintf(ACRX_T(<span class="str">"\nUnable to load AdkEmployeeDetails.dbx. Unloading...\n"</span>));
+        <span class="kw">return</span> AcRx::kRetError;
+    }
+}</code></pre></div>
+
+<div class="callout tip">
+<p><span class="lbl">DBX file location.</span> In production, ObjectDBX modules often live under
+<code>C:\Program Files\Common Files\Autodesk Shared\</code>. During development, AutoCAD finds the
+<code>.dbx</code> if it sits next to your <code>.arx</code> or is on the support path.</p>
+</div>
+</section>
+
+<section id="l6-run">
+<h2>Step 7 — Build &amp; test</h2>
+<p><strong>Build order:</strong> DBX first, then ARX.</p>
+<ol>
+<li>Build <strong>EmployeeDetails</strong> (x64 Debug) → <code>AdkEmployeeDetails.dbx</code>.</li>
+<li>Build <strong>Lesson6</strong> (x64 Debug) → <code>AdkLesson6.arx</code>.</li>
+<li>In AutoCAD 2027, <code>APPLOAD</code> <strong>AdkEmployeeDetails.dbx</strong> first, then
+<strong>AdkLesson6.arx</strong> (the ARX also attempts to load the DBX automatically on startup).</li>
+<li>Create EMPLOYEE block references — use Lesson 4's <code>CREATE</code> command and AutoCAD's
+<code>INSERT</code>, or any drawing that already has <code>EMPLOYEE</code> blocks.</li>
+<li>Run <code>ADDDETAIL</code> on a block, enter employee data, then try <code>LISTDETAILS</code> and
+<code>REMOVEDETAIL</code>.</li>
+<li><strong>Save, close, and reopen</strong> the drawing — run <code>LISTDETAILS</code> again to confirm
+the custom object data persisted in the drawing.</li>
+</ol>
+
+<figure class="shot">
+  <img src="images/l6-02-listdetails.png" alt="LISTDETAILS output" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l6-02-listdetails.png</code></div>
+    <div>Command-line output after LISTDETAILS on an EMPLOYEE block with stored details.</div></div>
+  <figcaption><span class="fig">Lesson 6, Figure 2</span> — Employee details read from the extension dictionary.</figcaption>
+</figure>
+
+<p>You now have a typed custom object stored on entities in the drawing — the pattern behind most real-world
+ObjectARX data extensions. Stuck on any step? Compare with
+<a href="Solutions/Lesson6_Solved.zip" download>Solutions\Lesson6_Solved.zip</a>.</p>
+
+<div class="next">▶ Next: <a href="#l7-intro">Lesson 7 — Custom Entities</a></div>
+</section>
+
+<!-- ============ LESSON 7 ============ -->
+<section id="l7-intro">
+<div class="band">
+  <div class="kicker">Lesson 7 · Custom entities</div>
+  <h1>Custom Entities — Data Inside the Entity Itself</h1>
+</div>
+
+<p>Lesson 6 stored employee data <em>outside</em> the EMPLOYEE block reference, in an extension
+dictionary. This lesson stores it <em>inside</em> a custom entity class instead —
+<code>AdkEmployee</code>, derived from <code>AcDbEllipse</code>. You get all the built-in behavior of an
+ellipse — it draws, grips, snaps, and plots like one — plus your own employee fields and your own draw
+logic layered on top.</p>
+
+<p>Same DB/UI separation as Lesson 6, one command instead of three:</p>
+<ul>
+<li><strong>ObjectDBX (<code>.dbx</code>)</strong> — the <em>database</em> half. Defines and registers the
+custom entity class. No AutoCAD command-line UI required.</li>
+<li><strong>ObjectARX (<code>.arx</code>)</strong> — the <em>user-interface</em> half. Provides the
+command that creates an <code>AdkEmployee</code> entity in the drawing.</li>
+</ul>
+
+<p>You'll implement one command in the ARX module:</p>
+
+<p><strong><code>CREATEEMPLOYEE</code></strong></p>
+<ul>
+<li>Prompt the user for 
+  <ul>
+    <li>employee ID</li>
+    <li>cube number</li>
+    <li>first name</li>
+    <li>last name</li>
+    <li>a location point</li>
+  </ul>
+</li>
+<li>Create a new <code>AdkEmployee</code> entity, fill in the data obtained from the user, and place it
+in Model Space at the picked point.</li>
+</ul>
+
+<div class="callout tip">
+<p><span class="lbl">Starting point — scaffold the ARX project (with the skill).</span> Begin by
+scaffolding a fresh ObjectARX project named <code>Lesson7</code> with the <code>acad-arx-wizard</code>
+skill — the same flow as Lessons 2 and 4. It has no command stubs yet; you'll add
+<code>CREATEEMPLOYEE</code> yourself in Step 6. You'll add the <strong>Employee</strong> DBX module as a
+sibling project in the next step.</p>
+</div>
+
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>/acad-arx-wizard
+Create an ObjectARX project named Lesson7 inside
+C:\Users\&lt;you&gt;\source\repos\Lesson7. AppType = arx, MFC = none.</code></pre></div>
+
+<p>Equivalent PowerShell:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>New-ArxApp.ps1 -ProjectName Lesson7 `
+    -OutputPath  "C:\Users\&lt;you&gt;\source\repos\Lesson7" `
+    -AppType     arx `
+    -MfcMode     none</code></pre></div>
+
+<div class="callout tip">
+<p><span class="lbl">Learn-by-doing.</span> Steps 3, 4, and 6 give you the <em>algorithms</em> and key
+code snippets, not the finished implementation. Try writing the code yourself; a complete solution is in
+<code>Solutions\Lesson7_Solved</code>.</p>
+</div>
+
+<h3>Folder layout when you're done</h3>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>Lesson7\                 ← your working folder
+  Lesson7\               ← ARX project (UI command) — created by skill
+  Employee\              ← DBX module (custom entity) — created by skill</code></pre></div>
+</section>
+
+<section id="l7-dbxproj">
+<h2>Step 1 — Create the DBX project (with the skill)</h2>
+<p>Same flow as Lesson 6 — add a sibling ObjectDBX project to the open solution, this time named
+<code>Employee</code>:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>/acad-arx-wizard
+Create an ObjectDBX project named Employee inside
+C:\Users\&lt;you&gt;\source\repos\Lesson7. AppType = dbx, MFC = none.</code></pre></div>
+
+<p>Equivalent PowerShell:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>New-ArxApp.ps1 -ProjectName Employee `
+    -OutputPath  "C:\Users\&lt;you&gt;\source\repos\Lesson7" `
+    -AppType     dbx `
+    -MfcMode     none</code></pre></div>
+
+<h3>Add the DBX project to your existing solution</h3>
+<p>In Visual Studio, with the <code>Lesson7</code> ARX project already open:</p>
+<ol>
+<li>In <strong>Solution Explorer</strong>, right-click the <strong>Solution</strong> node → <strong>Add →
+Existing Project…</strong></li>
+<li>Select <code>Employee\Employee.vcxproj</code>.</li>
+</ol>
+<p>Your solution should now contain two projects: <code>Lesson7</code> (ARX) and <code>Employee</code>
+(DBX).</p>
+
+<div class="callout tip">
+<p><span class="lbl">Output names.</span> With the default RDS prefix <code>Adk</code>, the built module is
+<code>AdkEmployee.dbx</code> and the import library is <code>AdkEmployee.lib</code>. The <em>class</em>
+is still named <code>AdkEmployee</code>.</p>
+</div>
+
+<figure class="shot">
+  <img src="images/l7-01-dbxproj.png" alt="DBX project in solution" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l7-01-dbxproj.png</code></div>
+    <div>Solution Explorer showing Lesson7 (ARX) and Employee (DBX) in one solution.</div></div>
+  <figcaption><span class="fig">Lesson 7, Figure 1</span> — Both modules in one solution.</figcaption>
+</figure>
+</section>
+
+<section id="l7-class">
+<h2>Step 2 — Scaffold the custom entity class (with the skill)</h2>
+<p>Ask the skill to generate the entity class pair, this time derived from <code>AcDbEllipse</code>
+instead of <code>AcDbObject</code>:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>/acad-arx-wizard
+In the Employee project, add a custom entity class named AdkEmployee
+derived from AcDbEllipse, with Dwg and Dxf filing protocols and entity
+graphics support (worldDraw).</code></pre></div>
+
+<p>Equivalent PowerShell:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>New-ArxCustomObject.ps1 -ClassName    AdkEmployee `
+    -BaseClass     AcDbEllipse `
+    -IncludeHeader dbell.h `
+    -Protocols     2 `
+    -ProjectName   Employee `
+    -OutputPath    "C:\Users\&lt;you&gt;\source\repos\Lesson7\Employee"</code></pre></div>
+
+<div class="callout tip">
+<p><span class="lbl">Why <code>-IncludeHeader dbell.h</code>.</span> The skill only infers a base-class
+header automatically for <code>AcDbCurve</code> and <code>AcDbEntity</code>. For any other base class —
+including <code>AcDbEllipse</code> — pass the header explicitly so the generated
+<code>AdkEmployee.h</code> compiles.</p>
+</div>
+
+<p><code>-Protocols 2</code> stubs out the <code>AcDbObject</code> filing methods
+(<code>dwgInFields</code>, <code>dwgOutFields</code>, <code>dxfInFields</code>, <code>dxfOutFields</code>)
+<em>and</em> the <code>AcDbEntity</code> graphics methods (<code>subWorldDraw</code>,
+<code>subSetAttributes</code>) — matching what the old wizard generated for any entity-derived custom
+class once the Dwg and Dxf Protocols checkboxes were ticked.</p>
+
+<p>The skill writes <code>AdkEmployee.h</code> and <code>AdkEmployee.cpp</code> and adds them to
+<code>Employee.vcxproj</code> automatically.</p>
+
+<h3>Register the DBX service name</h3>
+<p>Open <code>AdkEmployee.h</code> and add a constant the ARX module will use to locate this DBX at
+runtime. Place it near the top of the header (after the includes):</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">#define</span> ADKEMPLOYEE_DBXSERVICE ACRX_T(<span class="str">"ADKEMPLOYEE_DBXSERVICE"</span>)</code></pre></div>
+
+<p>The scaffold also emits the class-registration macro at the bottom of the header:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">#ifdef</span> EMPLOYEE_MODULE
+ACDB_REGISTER_OBJECT_ENTRY_AUTO(AdkEmployee)
+<span class="kw">#endif</span></code></pre></div>
+<p>That macro registers and unregisters <code>AdkEmployee</code> with the ObjectARX runtime class tree
+when the DBX module loads and unloads.</p>
+</section>
+
+<section id="l7-members">
+<h2>Step 3 — Members &amp; accessors</h2>
+<p>Open <code>AdkEmployee.h</code>. Same four data members as Lesson 6's <code>AdkEmployeeDetails</code>
+— this time they travel with the entity itself instead of living in a dictionary.</p>
+
+<h3>Member variables</h3>
+<table>
+<thead><tr><th>Variable</th><th>Type</th><th>DXF code</th></tr></thead>
+<tbody>
+<tr><td><code>m_lastName</code></td><td><code>TCHAR*</code></td><td><code>300</code></td></tr>
+<tr><td><code>m_firstName</code></td><td><code>TCHAR*</code></td><td><code>301</code></td></tr>
+<tr><td><code>m_cube</code></td><td><code>Adesk::Int32</code></td><td><code>90</code></td></tr>
+<tr><td><code>m_ID</code></td><td><code>Adesk::Int32</code></td><td><code>91</code></td></tr>
+</tbody>
+</table>
+
+<ol>
+<li>In <code>AdkEmployee.h</code>, add to the class declaration:</li>
+</ol>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">private</span>:
+    Adesk::Int32 m_ID;
+    Adesk::Int32 m_cube;
+    TCHAR*       m_firstName;
+    TCHAR*       m_lastName;</code></pre></div>
+
+<ol start="2">
+<li>Add public accessor/mutator declarations in the header — identical pattern to Lesson 6:</li>
+</ol>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">public</span>:
+    Acad::ErrorStatus setID       (<span class="kw">const</span> Adesk::Int32 ID);
+    Acad::ErrorStatus iD          (Adesk::Int32&amp; ID);
+    Acad::ErrorStatus setCube     (<span class="kw">const</span> Adesk::Int32 cube);
+    Acad::ErrorStatus cube        (Adesk::Int32&amp; cube);
+    Acad::ErrorStatus setFirstName(<span class="kw">const</span> TCHAR* firstName);
+    Acad::ErrorStatus firstName   (TCHAR*&amp; firstName);
+    Acad::ErrorStatus setLastName (<span class="kw">const</span> TCHAR* lastName);
+    Acad::ErrorStatus lastName    (TCHAR*&amp; lastName);</code></pre></div>
+
+<ol start="3">
+<li>Implement the accessors in <code>AdkEmployee.cpp</code>. Same <code>firstName()</code> /
+<code>setFirstName()</code> pattern as Lesson 6 — implement the remaining six functions the same way:</li>
+</ol>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>Acad::ErrorStatus AdkEmployee::firstName(TCHAR*&amp; firstName)
+{
+    assertReadEnabled();
+    firstName = _tcsdup(m_firstName);
+    <span class="kw">return</span> Acad::eOk;
+}
+
+Acad::ErrorStatus AdkEmployee::setFirstName(<span class="kw">const</span> TCHAR* firstName)
+{
+    assertWriteEnabled();
+    <span class="kw">if</span> (m_firstName)
+        free(m_firstName);
+    m_firstName = _tcsdup(firstName);
+    <span class="kw">return</span> Acad::eOk;
+}</code></pre></div>
+
+<p>You must also implement <code>dwgInFields</code>, <code>dwgOutFields</code>, <code>dxfInFields</code>,
+and <code>dxfOutFields</code> to read and write the four members using the DXF codes above — call the
+base class's filing method first in each, exactly as in Lesson 6. Refer to the ObjectARX Developer's Guide
+for filer API details.</p>
+</section>
+
+<section id="l7-worlddraw">
+<h2>Step 4 — worldDraw() &amp; the constructor</h2>
+<p>This is the part that's new to custom <em>entities</em>: your class must draw itself. The skill
+scaffold already stubbed <code>subWorldDraw()</code> calling straight through to the base class — you
+extend it to also draw the employee data as text.</p>
+
+<ol>
+<li>Implement <code>subWorldDraw()</code>. Call the base class's <code>subWorldDraw()</code>
+(<code>AcDbEllipse::subWorldDraw()</code>) first — the skill's scaffold already wires that part up for
+you, so this is just adding to it. Then draw the <code>AdkEmployee</code> entity's own data as text, using
+<code>AcGiWorldDraw::geometry()</code> / <code>AcGiGeometry::text()</code>.
+<code>subWorldDraw()</code> is passed an <code>AcGiWorldDraw*</code> — call
+<code>mode-&gt;geometry().text(...)</code> on it. For the text's position, normal, direction, and height,
+use the properties already sitting on the entity itself: since <code>AdkEmployee</code> is derived from
+<code>AcDbEllipse</code>, <code>center()</code>, <code>normal()</code>, <code>majorAxis()</code>, and
+<code>minorAxis()</code> are all there for the taking, no extra lookups needed:</li>
+</ol>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>Adesk::Boolean AdkEmployee::subWorldDraw(AcGiWorldDraw* mode)
+{
+    assertReadEnabled();
+    <span class="cm">// Draw the ellipse first (base class behavior).</span>
+    AcDbEllipse::subWorldDraw(mode);
+
+    <span class="cm">// Line 1: ID and cube number, centered on the ellipse.</span>
+    TCHAR buffer[255];
+    _stprintf(buffer, _T("%d (cubicle: %d)"), m_ID, m_cube);
+    mode->geometry().text(center(), normal(), majorAxis(),
+        minorAxis().length() / 2, 1.0, 0.0, buffer);
+
+    <span class="cm">// Line 2: first and last name, offset half a minor axis below line 1.</span>
+    _stprintf(buffer, _T("%s %s"), m_firstName, m_lastName);
+    mode->geometry().text(center() - minorAxis() / 2, normal(), majorAxis(),
+        minorAxis().length() / 2, 1.0, 0.0, buffer);
+
+    <span class="kw">return</span> Adesk::kTrue;
+}</code></pre></div>
+
+<div class="callout tip">
+<p><span class="lbl">Where the arguments come from.</span> <code>center()</code>, <code>normal()</code>,
+<code>majorAxis()</code>, and <code>minorAxis()</code> are all inherited from <code>AcDbEllipse</code> —
+your entity already knows its own position, orientation, and size.
+<code>AcGiGeometry::text()</code> takes <em>position, normal, direction, height, width, oblique,
+text</em> — <code>minorAxis().length() / 2</code> for height keys the label size to the ellipse itself.
+Refer to the ObjectARX Developer's Guide for the full signature and the remaining draw options.</p>
+</div>
+
+<ol start="2">
+<li>Change the constructor to initialize the <code>AcDbEllipse</code> base class instead of
+<code>AcDbObject</code>:</li>
+</ol>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>AdkEmployee::AdkEmployee()
+    : AcDbEllipse(AcGePoint3d(), AcGeVector3d(0, 0, 1), AcGeVector3d(1, 0, 0), 1)
+{
+    <span class="cm">// Initialize string pointers.</span>
+    m_firstName = m_lastName = NULL;
+}</code></pre></div>
+<p>The four arguments are the ellipse's center, normal, major axis, and radius ratio.
+<code>CREATEEMPLOYEE</code> will move and size the entity after construction, in Step 6.</p>
+</section>
+
+<section id="l7-register">
+<h2>Step 5 — Register &amp; build the DBX module</h2>
+<p>Open <code>Employee\acrxEntryPoint.cpp</code> and register the DBX as a named service — identical
+pattern to Lesson 6. Include the custom-entity header at the top:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">#include</span> <span class="str">"AdkEmployee.h"</span></code></pre></div>
+
+<p>In <code>On_kInitAppMsg()</code> and <code>On_kUnloadAppMsg()</code> of the
+<code>CEmployeeApp</code> class:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">virtual</span> AcRx::AppRetCode On_kInitAppMsg (<span class="kw">void</span>* pkt)
+{
+    AcRx::AppRetCode retCode = AcRxDbxApp::On_kInitAppMsg(pkt);
+    <span class="cm">// Register so the ARX module can find us.</span>
+    acrxRegisterService(ADKEMPLOYEE_DBXSERVICE);
+    <span class="kw">return</span> retCode;
+}
+
+<span class="kw">virtual</span> AcRx::AppRetCode On_kUnloadAppMsg (<span class="kw">void</span>* pkt)
+{
+    AcRx::AppRetCode retCode = AcRxDbxApp::On_kUnloadAppMsg(pkt);
+    <span class="kw">delete</span> acrxServiceDictionary->remove(ADKEMPLOYEE_DBXSERVICE);
+    <span class="kw">return</span> retCode;
+}</code></pre></div>
+
+<p><strong>Build the DBX project first.</strong> Right-click <code>Employee</code> in Solution Explorer →
+<strong>Build</strong>. Confirm the output: <code>Employee\x64\Debug\AdkEmployee.dbx</code> (and
+<code>AdkEmployee.lib</code> in the same folder).</p>
+</section>
+
+<section id="l7-cmds">
+<h2>Step 6 — The CREATEEMPLOYEE command</h2>
+<p>Switch to the <code>Lesson7</code> ARX project. Add a function in <code>acrxEntryPoint.cpp</code> and
+register it with <code>ACED_ARXCOMMAND_ENTRY_AUTO</code> (the Lesson 2 pattern).</p>
+
+<h3><code>CREATEEMPLOYEE</code> — algorithm</h3>
+<ol>
+<li>Prompt for employee ID, cube, first name, and last name (<code>acedGetInt()</code>,
+<code>acedGetString()</code>), and a location point (<code>acedGetPoint()</code>).</li>
+<li>Convert the returned <code>ads_point</code> to an <code>AcGePoint3d</code> with the global function
+<code>asDblArray()</code>.</li>
+<li>Create a new <code>AdkEmployee</code> instance.</li>
+<li>Set its data via the accessors from Step 3, and position it at the picked point.</li>
+<li>Open the Model Space <code>AcDbBlockTableRecord</code> for write and append the entity
+(<code>AcDbBlockTableRecord::appendAcDbEntity()</code>).</li>
+<li><strong>Close</strong> every object you opened.</li>
+</ol>
+
+<div class="callout warn">
+<p><span class="lbl">Same golden rule as Lessons 4–6.</span> Every object you open must be
+<strong>closed</strong> — including the newly created <code>AdkEmployee</code> once it has been
+appended.</p>
+</div>
+
+<div class="callout tip">
+<p><span class="lbl">Naming reminder.</span> Function name = group + command. For
+<code>CREATEEMPLOYEE</code> in group <code>AdkMyGroup</code>, the function is
+<code>AdkMyGroupCREATEEMPLOYEE()</code>.</p>
+</div>
+</section>
+
+<section id="l7-load">
+<h2>Step 7 — Load the DBX from the ARX module</h2>
+<p>Same wiring as Lesson 6, with the new names.</p>
+
+<ol>
+<li>In <code>Lesson7\StdAfx.h</code>, include the custom-entity header from the sibling project:
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code><span class="kw">#include</span> <span class="str">"..\Employee\AdkEmployee.h"</span></code></pre></div>
+</li>
+<li>In the ARX project's linker settings, add <code>AdkEmployee.lib</code> to
+<strong>Linker → Input → Additional Dependencies</strong>, and add the folder that contains the
+<code>.lib</code> (typically <code>Employee\x64\Debug</code>) to
+<strong>Linker → General → Additional Library Directories</strong>.</li>
+<li>In <code>Lesson7\acrxEntryPoint.cpp</code>, inside <code>On_kInitAppMsg()</code> of
+<code>CLesson7App</code>, load the DBX module if its service is not already registered:</li>
+</ol>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>AcRxObject* pSvc;
+<span class="kw">if</span> ( !(pSvc = acrxServiceDictionary->at(ADKEMPLOYEE_DBXSERVICE)) )
+{
+    <span class="kw">if</span> ( !acrxDynamicLinker->loadModule(ACRX_T(<span class="str">"AdkEmployee.dbx"</span>), 0) )
+    {
+        acutPrintf(ACRX_T(<span class="str">"\nUnable to load AdkEmployee.dbx. Unloading...\n"</span>));
+        <span class="kw">return</span> AcRx::kRetError;
+    }
+}</code></pre></div>
+
+<div class="callout tip">
+<p><span class="lbl">DBX file location.</span> In production, ObjectDBX modules often live under
+<code>C:\Program Files\Common Files\Autodesk Shared\</code>. During development, AutoCAD finds the
+<code>.dbx</code> if it sits next to your <code>.arx</code> or is on the support path.</p>
+</div>
+</section>
+
+<section id="l7-run">
+<h2>Step 8 — Build &amp; test</h2>
+<p><strong>Build order:</strong> DBX first, then ARX.</p>
+<ol>
+<li>Build <strong>Employee</strong> (x64 Debug) → <code>AdkEmployee.dbx</code>.</li>
+<li>Build <strong>Lesson7</strong> (x64 Debug) → <code>AdkLesson7.arx</code>.</li>
+<li>In AutoCAD 2027, <code>APPLOAD</code> <strong>AdkEmployee.dbx</strong> first, then
+<strong>AdkLesson7.arx</strong> (the ARX also attempts to load the DBX automatically on startup).</li>
+<li>Run <code>CREATEEMPLOYEE</code>, enter employee data, and pick a point in Model Space.</li>
+<li><strong>Save</strong> the drawing.</li>
+</ol>
+
+<div class="callout tip">
+<p><span class="lbl">See what a custom entity needs its DBX for.</span> With the drawing still open,
+unload both <strong>AdkLesson7.arx</strong> and <strong>AdkEmployee.dbx</strong> — run <code>APPLOAD</code>,
+select each in the list, and click <strong>Unload</strong>.
+Your EMPLOYEE entity turns into a generic <strong>Proxy entity</strong> — AutoCAD can no longer draw or
+edit it as an <code>AdkEmployee</code> without its class definition. <code>APPLOAD</code> both modules
+again and the entity becomes a real <code>AdkEmployee</code> once more. This is the key difference from
+Lesson 6: data hidden in an extension dictionary doesn't visibly degrade when its DBX is missing, but a
+custom <em>entity</em> does — because the entity <em>is</em> the drawn geometry.</p>
+</div>
+
+<figure class="shot">
+  <img src="images/l7-01-createemployee.png" alt="CREATEEMPLOYEE output" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  <div class="shot-placeholder"><span class="cam">📷</span>
+    <div><span class="badge">SLOT</span>Save as <code>images/l7-01-createemployee.png</code></div>
+    <div>An AdkEmployee entity in Model Space, drawn as an ellipse with employee text.</div></div>
+  <figcaption><span class="fig">Lesson 7, Figure 1</span> — A custom entity drawing itself.</figcaption>
+</figure>
+
+<p>You now have a custom entity that carries its own data <em>and</em> its own draw logic — the pattern
+behind most real-world custom AutoCAD objects. Stuck on any step? Compare with
+<a href="Solutions/Lesson7_Solved.zip" download>Solutions\Lesson7_Solved.zip</a>.</p>
+
+<div class="next">▶ Next: <a href="#l8-intro">Lesson 8 — Transient Reactors</a></div>
+</section>
+
+<!-- ============ LESSON 8 ============ -->
+<section id="l8-intro">
+<div class="band">
+  <div class="kicker">Lesson 8 · Transient reactors</div>
+  <h1>Transient Reactors — Reacting to What the User Does</h1>
+</div>
+
+<p>Every lesson so far added a command the user types. This lesson adds no commands at all — instead it
+watches AutoCAD's editor and database and <em>reacts</em> when something happens. Reactors come in several
+flavors:</p>
+
+<ol>
+<li>The <strong>database reactor</strong>, <code>AcDbDatabaseReactor</code> — monitors events within the
+scope of the database, such as adding and removing entities.</li>
+<li>The <strong>editor reactor</strong>, <code>AcEditorReactor</code> — monitors events that happen while
+the user is editing a drawing, such as commands starting and ending, or closing an active session. 
+</li>
+<li>The <strong>object reactor</strong>, <code>AcDbObjectReactor</code> — monitors events specific to a
+particular entity, such as being opened for modification and notify an application when the entity is modified. 
+.</li>
+<li>The <strong>document manager reactor</strong>, <code>AcApDocManagerReactor</code> — since release
+2000, AutoCAD is a multiple document environment. This reactor monitors MDI document-window related
+events, such as opening, closing, and switching documents in the AutoCAD session. SDI mode events are
+supported as well.</li>
+</ol>
+
+<div class="callout tip">
+<p><span class="lbl">You already have #4.</span> The <code>acad-arx-wizard</code> skill's ARX template
+generates <code>DocData.h</code>/<code>.cpp</code> with a global <code>AcApDataManager&lt;CDocData&gt;
+DocVars</code> — see Step 1. It transparently creates and switches one <code>CDocData</code> instance per
+open document, which is exactly what a document manager reactor would otherwise be needed for. This lesson
+only needs you to build the other three reactors.</p>
+</div>
+
+<h3 style="margin-top:0;">Objective</h3>
+<p>This application registers <em>no new commands</em>. It depends on EMPLOYEE block references — the
+kind you created with Lesson 4's <code>CREATE</code> command. It watches for <code>MOVE</code>,
+<code>ROTATE</code>, <code>STRETCH</code>, <code>SCALE</code>, or grip-stretch starting on an EMPLOYEE
+block reference, and if the reference's <em>position</em> (its insertion point) ends up different once the
+command finishes, resets it back to where it was.</p>
+
+<p>Only position is tracked and restored — not scale, rotation angle, or size. <code>MOVE</code> always
+changes position, so it's always reverted. <code>SCALE</code> or an in-place <code>ROTATE</code> (about
+the block's own insertion point) don't change position at all, so there's nothing for the reactor to catch
+— the entity visibly stays scaled or rotated.</p>
+
+<p>The strategy, in order:</p>
+<ul>
+<li>An <strong>editor reactor</strong> (<code>AdkEdEmployeeReactor</code>) watches for one of the five
+monitored commands starting and ending.</li>
+<li>An <strong>object reactor</strong> (<code>AdkEmployeeReactor</code>), attached to every EMPLOYEE block
+reference, notices when one is opened for modify <em>before</em> the transform happens, and records its
+object ID and current position.</li>
+<li>When the command ends, the editor reactor compares each recorded position against the block
+reference's new position and, if it moved, resets it.</li>
+<li>A <strong>database reactor</strong> (<code>AdkDbEmployeeReactor</code>) watches for newly created
+EMPLOYEE block references and attaches the object reactor to them automatically.</li>
+</ul>
+
+<p>Because a user can apply an edit command to a selection set containing several EMPLOYEE references (and
+other entities) at once, the tracking data is two parallel arrays: an <code>AcDbObjectIdArray</code>
+(<code>m_changedObjects</code>) and an <code>AcGePoint3dArray</code> (<code>m_employeePositions</code>) —
+one entry per block reference currently being watched.</p>
+
+<p>These two arrays are also per-document — each open document needs its own copies, swapped in whenever
+the active document becomes current. Managing that swap on a document-by-document basis is exactly the job
+a document manager reactor (reactor #4 above) exists to do; see the tip above for where that's already
+covered.</p>
+
+<div class="callout tip">
+<p><span class="lbl">Starting point — ARX + DBX template.</span> Begin with the <strong>Lesson 8
+template</strong>: from the Solutions, unzip <code>Lesson8_template.zip</code>. It contains two projects,
+already wired together the same way as Lessons 6–7:</p>
+<ul>
+<li>An ObjectARX project named <code>Lesson8</code> that already carries over Lesson 4's
+<code>CREATE</code> command, so you have a way to create the EMPLOYEE block references these reactors
+watch without re-typing it. It does <em>not</em> carry over Lesson 4's <code>SETLAYER</code> or any of
+Lessons 6–7's commands — those aren't needed here.</li>
+<li>The <strong>Employee</strong> DBX module from Lesson 7 — the <code>AdkEmployee</code> custom entity —
+already built, linked, and loaded automatically by <code>Lesson8</code>'s <code>On_kInitAppMsg()</code>.
+This lesson's reactors watch the plain EMPLOYEE <code>AcDbBlockReference</code> created by
+<code>CREATE</code>, not an <code>AdkEmployee</code> instance, so you won't touch this module directly —
+it's carried forward simply because it's already part of the same project chain.</li>
+</ul>
+
+</div>
+
+<div class="callout tip">
+<p><span class="lbl">Learn-by-doing.</span> Steps 2, 3, 4, and 5 give you the <em>algorithms</em>, not the
+finished implementation. Try writing the code yourself; a complete solution is in
+<code>Solutions\Lesson8_Solved</code>.</p>
+</div>
+
+<h3>Folder layout when you're done</h3>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>Lesson8\                 ← your working folder
+  Lesson8\               ← ARX project — reactors live here
+  Employee\              ← DBX module carried over from Lesson 7 (not modified in this lesson)</code></pre></div>
+</section>
+
+<section id="l8-docdata">
+<h2>Step 1 — Open the template &amp; prepare document data</h2>
+<p>Unzip <code>Lesson8_template.zip</code> from the Solutions and open <code>Lesson8.sln</code> in Visual
+Studio 2026. You'll find the two projects described above already there: <code>Lesson8</code> (ARX, with
+<code>CREATE</code> carried over from Lesson 4) and <code>Employee</code> (DBX, carried over unchanged
+from Lesson 7).</p>
+
+<p><code>Lesson8</code> was originally scaffolded with the <code>acad-arx-wizard</code> skill, same as
+every other lesson's ARX project, so it already has <code>DocData.h</code> and <code>DocData.cpp</code> —
+a <code>CDocData</code> class plus the global <code>AcApDataManager&lt;CDocData&gt; DocVars</code>
+declared in <code>StdAfx.h</code>. This is where document-specific data lives;
+<code>DocVars.docData()</code> retrieves the instance for the current document.</p>
+
+<p>You'll add four tracking members to the <code>CDocData</code> class to hold this lesson's per-document
+state.</p>
+
+<h3>Add the tracking member variables</h3>
+<table>
+<thead><tr><th>Variable</th><th>Type</th></tr></thead>
+<tbody>
+<tr><td><code>m_editCommand</code></td><td><code>bool</code></td></tr>
+<tr><td><code>m_doRepositioning</code></td><td><code>bool</code></td></tr>
+<tr><td><code>m_changedObjects</code></td><td><code>AcDbObjectIdArray</code></td></tr>
+<tr><td><code>m_employeePositions</code></td><td><code>AcGePoint3dArray</code></td></tr>
+</tbody>
+</table>
+<ul>
+<li><code>m_editCommand</code> — true while one of the five monitored commands is active.</li>
+<li><code>m_doRepositioning</code> — true while <em>we</em> are the ones repositioning a block reference,
+so the object reactor knows to ignore the resulting modify notification.</li>
+<li><code>m_changedObjects</code> — object IDs of the EMPLOYEE references touched by the current command.</li>
+<li><code>m_employeePositions</code> — their positions before the command started.</li>
+</ul>
+
+<p>Add the members to the <code>CDocData</code> class declaration in <code>DocData.h</code>, and
+initialize the two booleans in the constructor in <code>DocData.cpp</code>:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>CDocData::CDocData()
+{
+    m_editCommand = <span class="kw">false</span>;
+    m_doRepositioning = <span class="kw">false</span>;
+}</code></pre></div>
+</section>
+
+<section id="l8-edreactor">
+<h2>Step 2 — The editor reactor: <code>AdkEdEmployeeReactor</code></h2>
+<p>Scaffold a reactor class derived from <code>AcEditorReactor</code> with the skill:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>/acad-arx-wizard
+In the Lesson8 project, add a transient reactor class named
+AdkEdEmployeeReactor derived from AcEditorReactor.</code></pre></div>
+
+<p>Equivalent PowerShell:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>New-ArxReactors.ps1 -ClassName   AdkEdEmployeeReactor `
+    -ReactorType AcEditorReactor `
+    -ProjectName Lesson8 `
+    -OutputPath  "C:\Users\&lt;you&gt;\source\repos\Lesson8\Lesson8"</code></pre></div>
+
+<p>The generated constructor takes a <code>bool autoInitAndRelease</code> (default <code>true</code>):
+when true, the class attaches itself to <code>acedEditor</code> in its constructor and detaches in its
+destructor, so you never call <code>addReactor()</code>/<code>removeReactor()</code> yourself for this one.</p>
+
+<p>Open <code>AdkEdEmployeeReactor.h</code> in the class view and override two virtual functions from
+<code>AcEditorReactor</code>: <code>commandWillStart()</code> and <code>commandEnded()</code>.</p>
+
+<h3><code>commandWillStart()</code> — algorithm</h3>
+<ol>
+<li>Check whether the command name passed in matches one of <code>"MOVE"</code>, <code>"ROTATE"</code>,
+<code>"STRETCH"</code>, <code>"SCALE"</code>, or <code>"GRIP_STRETCH"</code> (<code>strcmp()</code> or
+similar).</li>
+<li>If it does, set <code>m_editCommand = true</code> and <code>m_doRepositioning = false</code> — via
+<code>DocVars.docData()</code>.</li>
+<li>Reset <code>m_changedObjects</code> and <code>m_employeePositions</code> to zero length
+(<code>AcDbObjectIdArray::setLogicalLength()</code>).</li>
+</ol>
+
+<h3><code>commandEnded()</code> — algorithm</h3>
+<ol>
+<li>If the command that just ended isn't one of the monitored commands, set
+<code>m_editCommand = false</code> and return.</li>
+<li>Set <code>m_editCommand = false</code> and <code>m_doRepositioning = true</code> — we're about to
+reposition, and the object reactor should ignore what follows.</li>
+<li>For every entry in <code>m_changedObjects</code> (<code>AcDbObjectIdArray::length()</code>):
+  <ol type="a">
+  <li>Open the entity (<code>acdbOpenObject()</code>).</li>
+  <li>Compare its current position (<code>AcDbBlockReference::position()</code>) against the stored
+  original (<code>m_employeePositions.at()</code>). If different, reset it
+  (<code>AcDbBlockReference::setPosition()</code>).</li>
+  </ol>
+</li>
+</ol>
+
+<p>Create a global pointer in <code>acrxEntryPoint.cpp</code>:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>AdkEdEmployeeReactor *pEdEmployeeReactor = NULL;</code></pre></div>
+
+<p>Create the instance in <code>On_kInitAppMsg()</code> of <code>CLesson8App</code> — the <code>true</code>
+argument lets the class handle its own attach/detach:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>pEdEmployeeReactor = <span class="kw">new</span> AdkEdEmployeeReactor(<span class="kw">true</span>);</code></pre></div>
+
+<div class="callout warn">
+<p><span class="lbl">Delete it on unload.</span> In <code>On_kUnloadAppMsg()</code>:
+<code>delete pEdEmployeeReactor;</code> — an editor reactor is added when the application loads and
+<strong>must</strong> be removed when it unloads. Forgetting this can crash AutoCAD.</p>
+</div>
+</section>
+
+<section id="l8-objreactor">
+<h2>Step 3 — The object reactor: <code>AdkEmployeeReactor</code></h2>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>/acad-arx-wizard
+In the Lesson8 project, add a transient reactor class named
+AdkEmployeeReactor derived from AcDbObjectReactor.</code></pre></div>
+
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>New-ArxReactors.ps1 -ClassName   AdkEmployeeReactor `
+    -ReactorType AcDbObjectReactor `
+    -ProjectName Lesson8 `
+    -OutputPath  "C:\Users\&lt;you&gt;\source\repos\Lesson8\Lesson8"</code></pre></div>
+
+<p>Unlike the editor reactor, this one has no auto-attach behavior — you'll attach it to specific objects
+yourself in Step 4. Override <code>openedForModify()</code> from <code>AcDbObjectReactor</code>.</p>
+
+<h3><code>openedForModify()</code> — algorithm</h3>
+<ol>
+<li>If <code>m_doRepositioning</code> is <code>true</code> (via <code>DocVars.docData()</code>), return
+immediately — this notification is a side effect of our own reset, not a user edit.</li>
+<li>If <code>m_editCommand</code> is <code>false</code>, return — no monitored command is active.</li>
+<li>Verify the <code>AcDbObject*</code> passed in is an <code>AcDbBlockReference</code>
+(<code>isKindOf()</code>). Return if not.</li>
+<li>Get its block definition and check the name (<code>AcDbBlockReference::blockTableRecord()</code>,
+then the <code>AcDbBlockTableRecord</code>'s name). Return if it isn't <code>"EMPLOYEE"</code>.</li>
+<li>Append its current position to <code>m_employeePositions</code>
+(<code>AcGePoint3dArray::append()</code>) and its object ID to <code>m_changedObjects</code>
+(<code>AcDbObjectIdArray::append()</code>).</li>
+</ol>
+
+<p>Create a Global pointer, created and destroyed the same way as the editor reactor — but with no auto-attach
+argument, since this reactor is attached per-object, not to the editor. Place this reactor in the "acrxEntryPoint.cpp" file as follows:
+:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>AdkEmployeeReactor *pEmployeeReactor = NULL;
+
+<span class="cm">// On_kInitAppMsg():</span>
+pEmployeeReactor = <span class="kw">new</span> AdkEmployeeReactor();
+
+<span class="cm">// On_kUnloadAppMsg():</span>
+<span class="kw">delete</span> pEmployeeReactor;</code></pre></div>
+
+<div class="callout tip">
+<p><span class="lbl">One instance, many objects.</span> This single <code>AdkEmployeeReactor</code>
+instance gets attached to <em>every</em> EMPLOYEE block reference — an <code>AcDbObjectReactor</code> can
+watch more than one object at a time. You don't need a new instance per entity.</p>
+</div>
+</section>
+
+<section id="l8-utility">
+<h2>Step 4 — Attach/detach utility functions</h2>
+<p>No skill needed here — this is plain C++ wiring between the pieces you've already built. Declare both
+functions in <code>DocData.h</code> (they're free functions, not <code>CDocData</code> members) and
+implement them in <code>DocData.cpp</code>, right below the <code>CDocData</code> constructor/destructor —
+declaring them in the header is what lets both <code>DocData.cpp</code> itself (the constructor call
+below) and <code>acrxEntryPoint.cpp</code> (the unload call) see them.</p>
+
+<div class="callout tip">
+<p><span class="lbl">Note.</span> You attach/detach transient reactors with <code>addReactor()</code> /
+<code>removeReactor()</code>, and here you're attaching one to every EMPLOYEE block reference — but more
+than one open drawing can contain EMPLOYEE references. <code>DocVars</code> (Step 1's
+<code>AcApDataManager&lt;CDocData&gt;</code>) manages one <code>CDocData</code> instance per document, so
+calling <code>attachEmployeeReactorToAllEmployee()</code> from the <code>CDocData</code> constructor runs
+it once for every open drawing in the session, and again whenever a drawing is newly created or opened.
+That's what's responsible for attaching/removing the <code>AdkEmployeeReactor</code> instances correctly,
+document by document.</p>
+</div>
+
+<h3><code>Acad::ErrorStatus attachEmployeeReactorToAllEmployee(bool attach)</code></h3>
+<ol type="a">
+<li>Get the block table (<code>AcDbDatabase::getBlockTable()</code>).</li>
+<li>Get the Model Space record (<code>AcDbBlockTable::getAt()</code>, <code>ACDB_MODEL_SPACE</code>).</li>
+<li>Get an iterator over it (<code>AcDbBlockTableRecord::newIterator()</code>).</li>
+<li>Walk the entities (<code>AcDbBlockTableRecordIterator::getEntity()</code>). Skip anything that isn't
+an EMPLOYEE block reference.</li>
+<li>For each EMPLOYEE reference: if <code>attach</code> is true, <code>AcDbObject::addReactor()</code> the
+global <code>pEmployeeReactor</code>; otherwise <code>AcDbObject::removeReactor()</code> it.</li>
+<li>Delete the iterator and close every object you opened.</li>
+</ol>
+<p>Call this from the <code>CDocData</code> constructor (with <code>attach = true</code>) — it runs once
+per document, whether that document is newly created, opened, or already open when the app loads.</p>
+
+<h3><code>void detachAllEmployeeReactors()</code></h3>
+<ol type="a">
+<li>Get a document iterator (<code>acDocManager-&gt;newAcApDocumentIterator()</code>) — <code>acDocManager</code>
+is the global macro for the <code>AcApDocManager</code> that owns every open document.</li>
+<li>Save the current document (<code>acDocManager-&gt;curDocument()</code>) so you can restore it after.</li>
+<li>Iterate every document, making each one current in turn, and call
+<code>attachEmployeeReactorToAllEmployee(false)</code> on it.</li>
+<li>Restore the document that was current before you started iterating.</li>
+</ol>
+<p>Call <code>detachAllEmployeeReactors()</code> when your application unloads — every attached object
+reactor must be removed, the same golden rule as the editor reactor.</p>
+
+<div class="callout warn">
+<p><span class="lbl">Check the linking.</span> Both functions above reference the global
+<code>pEmployeeReactor</code> pointer — but it's <em>defined</em> in <code>acrxEntryPoint.cpp</code>
+(Step 3), not here in <code>DocData.cpp</code>. A different <code>.cpp</code> file can't see another
+file's global unless it's declared <code>extern</code> somewhere both include — add this to
+<code>StdAfx.h</code> so <code>DocData.cpp</code> links against it correctly (Step 5's
+<code>AdkDbEmployeeReactor</code> will need the same declaration):</p>
+</div>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>extern AdkEmployeeReactor* pEmployeeReactor;</code></pre></div>
+</section>
+
+<section id="l8-dbreactor">
+<h2>Step 5 — The database reactor: <code>AdkDbEmployeeReactor</code></h2>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>/acad-arx-wizard
+In the Lesson8 project, add a transient reactor class named
+AdkDbEmployeeReactor derived from AcDbDatabaseReactor.</code></pre></div>
+
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>New-ArxReactors.ps1 -ClassName   AdkDbEmployeeReactor `
+    -ReactorType AcDbDatabaseReactor `
+    -ProjectName Lesson8 `
+    -OutputPath  "C:\Users\&lt;you&gt;\source\repos\Lesson8\Lesson8"</code></pre></div>
+
+<p>This template's constructor takes an <code>AcDbDatabase* pDb = NULL</code> and, if non-null, attaches
+itself immediately (<code>pDb-&gt;addReactor(this)</code>) — matching one instance per document's
+database. Override <code>objectAppended()</code> from <code>AcDbDatabaseReactor</code>.</p>
+
+<h3><code>objectAppended()</code> — algorithm</h3>
+<ol type="a">
+<li>Check the appended object is an <code>AcDbBlockReference</code>. Return if not.</li>
+<li>Get its block table record (<code>AcDbBlockReference::blockTableRecord()</code>).</li>
+<li>Get the record's name and check it's <code>"EMPLOYEE"</code> (<code>AcDbSymbolTable::getName()</code>).
+Return if not.</li>
+<li>Attach the shared <code>pEmployeeReactor</code> object reactor to the newly appended block reference
+(<code>AcDbObject::addReactor()</code>) — this is how EMPLOYEE references created <em>after</em> the
+application loads still get watched.</li>
+</ol>
+
+<p>Add a pointer to <code>CDocData</code>, one instance per document:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>
+    AdkDbEmployeeReactor* m_pAdkDbEmployeeReactor;</code></pre></div>
+
+<p>Create it when a drawing loads — override <code>On_kLoadDwgMsg()</code> in <code>CLesson8App</code>:</p>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>DocVars.docData().m_pAdkDbEmployeeReactor =
+    <span class="kw">new</span> AdkDbEmployeeReactor(acdbHostApplicationServices()-&gt;workingDatabase());</code></pre></div>
+</section>
+
+<section id="l8-run">
+<h2>Step 6 — Build &amp; test</h2>
+<ol>
+<li>Build <strong>Lesson8</strong> (x64 Debug) → <code>AdkLesson8.arx</code>.</li>
+<li><code>APPLOAD</code> it in AutoCAD 2027.</li>
+<li>Create some EMPLOYEE block references, same as Lesson 4's <code>CREATE</code> command.</li>
+<li>Try <code>MOVE</code> on one — it snaps right back to where it started. The transient reactors are
+doing their job. <code>SCALE</code>, or <code>ROTATE</code> about the block's own insertion point, will
+<em>not</em> snap back — only position is tracked, so those are expected to visibly stick. See the
+Objective above for why.</li>
+<li><strong>Save</strong> and close the drawing.</li>
+<li>Reopen the saved drawing. The EMPLOYEE references can now be moved freely — the reactors were
+<em>transient</em>; they weren't saved with the drawing.</li>
+<li><code>APPLOAD</code> the application again. <code>MOVE</code> is blocked once more, because
+<code>On_kLoadDwgMsg()</code> re-created the database reactor and re-attached everything.</li>
+</ol>
+
+<p>You now know how to make AutoCAD notify <em>you</em> instead of polling for changes — the reactor
+pattern behind undo-aware add-ins, live validation, and anything that needs to react the instant something
+changes in the drawing. Stuck on any step? Compare with
+<a href="Solutions/Lesson8_Solved.zip" download>Solutions\Lesson8_Solved.zip</a>.</p>
+
+<div class="callout tip">
+<p><span class="lbl">That's the tutorial.</span> Across eight lessons you've built a plug-in from raw project
+files (Lesson 1), used the <code>acad-arx-wizard</code> skill to scaffold projects and classes
+(Lesson 2), talked to the user (Lesson 3), read and wrote symbol tables (Lesson 4), persisted your own data
+in a drawing (Lesson 5), built custom objects and custom entities with DB/UI separation (Lessons 6–7), and
+made AutoCAD notify you of change instead of the other way around (Lesson 8). That's the core toolkit
+almost every real ObjectARX application is built from — well done, and good luck with what you build next.</p>
+</div>
+</section>
+
+<!-- ============ TROUBLESHOOTING ============ -->
+<section id="trouble">
+<div class="band">
+  <div class="kicker">Reference</div>
+  <h1>Troubleshooting</h1>
+</div>
+<table>
+<thead><tr><th>Symptom</th><th>Cause &amp; fix</th></tr></thead>
+<tbody>
+<tr><td><code>Cannot open include file 'acdb.h'</code></td><td>Include path is wrong. Lesson 1: fix
+<em>Additional Include Directories</em>. Lesson 2: fix <code>ArxSdkDir</code> in the .props file.</td></tr>
+<tr><td>Unresolved externals / <code>LNK2019</code> at link time</td><td>Missing or wrong library. Check the
+Additional Dependencies list and confirm the version numbers match your SDK's <code>lib-x64</code> folder.</td></tr>
+<tr><td>Random crashes / "heap corruption"</td><td>The <code>/MD</code> rule — you built with <code>/MDd</code>.
+Switch the Runtime Library back to <strong>Multi-threaded DLL (/MD)</strong>.</td></tr>
+<tr><td><code>HELLO</code> is "Unknown command"</td><td>The <code>.arx</code> didn't load, or you loaded an old
+build. Re-run <code>APPLOAD</code> on the freshly built file and confirm the build succeeded.</td></tr>
+<tr><td>Command name doesn't match the function</td><td>Function name = group + command
+(<code>AdskMyGroup</code> + <code>Hello</code> = <code>AdskMyGroupHello</code>).</td></tr>
+<tr><td><code>/acad-arx-wizard</code> not listed</td><td>The skill folder isn't in
+<code>.claude\skills\</code>, or Claude Code needs a restart.</td></tr>
+<tr><td>Visual Studio's built-in ObjectARX wizard is broken</td><td>Expected in VS 2026. Use the Claude Code
+skill instead — that's Lesson 2.</td></tr>
+<tr><td><code>Unable to load AdkEmployeeDetails.dbx</code> (Lesson 6)</td><td>Build the DBX project first.
+Confirm <code>AdkEmployeeDetails.dbx</code> is next to the <code>.arx</code> or on AutoCAD's support path.
+Load the <code>.dbx</code> manually with <code>APPLOAD</code> to verify.</td></tr>
+<tr><td>Linker cannot find <code>AdkEmployeeDetails.lib</code> (Lesson 6)</td><td>Build <strong>EmployeeDetails</strong>
+before <strong>Lesson6</strong>. Add <code>EmployeeDetails\x64\Debug</code> to Additional Library Directories
+and <code>AdkEmployeeDetails.lib</code> to Additional Dependencies.</td></tr>
+<tr><td><code>ADDDETAIL</code> fails silently (Lesson 6)</td><td>The custom class may not be registered — confirm
+the DBX loaded and <code>ACDB_REGISTER_OBJECT_ENTRY_AUTO</code> is present under
+<code>EMPLOYEEDETAILS_MODULE</code>.</td></tr>
+<tr><td><code>Unable to load AdkEmployee.dbx</code> (Lesson 7)</td><td>Build the DBX project first.
+Confirm <code>AdkEmployee.dbx</code> is next to the <code>.arx</code> or on AutoCAD's support path.
+Load the <code>.dbx</code> manually with <code>APPLOAD</code> to verify.</td></tr>
+<tr><td>Linker cannot find <code>AdkEmployee.lib</code> (Lesson 7)</td><td>Build <strong>Employee</strong>
+before <strong>Lesson7</strong>. Add <code>Employee\x64\Debug</code> to Additional Library Directories
+and <code>AdkEmployee.lib</code> to Additional Dependencies.</td></tr>
+<tr><td>EMPLOYEE entity shows as a Proxy entity (Lesson 7)</td><td>Expected once <code>AdkEmployee.dbx</code>
+is unloaded — see Step 8. <code>APPLOAD</code> the DBX (and the ARX) to restore the entity.</td></tr>
+<tr><td><code>MOVE</code> still works on an EMPLOYEE reference (Lesson 8)</td><td>The object reactor was
+never attached. Confirm <code>attachEmployeeReactorToAllEmployee(true)</code> runs from the
+<code>CDocData</code> constructor, and that <code>AdkDbEmployeeReactor</code> is created in
+<code>On_kLoadDwgMsg()</code> so <em>new</em> EMPLOYEE references get watched too.</td></tr>
+<tr><td>AutoCAD crashes when unloading the app (Lesson 8)</td><td>A reactor was left attached. Confirm
+<code>On_kUnloadAppMsg()</code> deletes <code>pEdEmployeeReactor</code> and <code>pEmployeeReactor</code>,
+and calls <code>detachAllEmployeeReactors()</code>.</td></tr>
+<tr><td>EMPLOYEE reference moves after reopening the drawing (Lesson 8)</td><td>Expected — reactors are
+transient and are not saved with the drawing. <code>APPLOAD</code> the application again to re-attach
+them via <code>On_kLoadDwgMsg()</code>.</td></tr>
+</tbody>
+</table>
+
+<hr>
+<p style="color:var(--muted);font-size:.85rem;"><em>Beginner tutorial for AutoCAD 2027 / Visual Studio 2026, using the
+<code>acad-arx-wizard</code> Claude Code skill.</em></p>
+</section>
+
+</main>
+</div>
+
+<script>
+function copyCode(btn){
+  var code = btn.nextElementSibling.querySelector('code');
+  navigator.clipboard.writeText(code.innerText).then(function(){
+    var original = btn.textContent;
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(function(){
+      btn.textContent = original;
+      btn.classList.remove('copied');
+    }, 1500);
+  });
+}
+</script>
+</body>
+</html>
