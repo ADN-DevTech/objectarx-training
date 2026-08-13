@@ -1,0 +1,34 @@
+# ObjectARX for Beginners
+
+> A hands-on tutorial for writing ObjectARX C++ plug-ins for AutoCAD 2027 using Visual Studio 2026.
+> Eight lessons take you from a bare "Hello World" plug-in through input & selection, symbol tables,
+> dictionaries & xrecords, custom objects, custom entities, and transient reactors — each one built
+> two ways: entirely by hand, and with the `acad-arx-wizard` Claude Code skill.
+
+This repository hosts a single self-contained HTML tutorial plus reference solution projects.
+There is no API; the content is static and safe to fetch, summarize, or index in full.
+
+## Docs
+
+- [Tutorial (all 8 lessons)](ObjectARX-Beginner-Tutorial.html): The full tutorial, read top to bottom.
+- [README](README.md): Repo overview, prerequisites, and contents summary.
+
+## Solutions
+
+Finished reference projects per lesson, for comparison if you get stuck:
+
+- [Lesson 1 — Solved](Solutions/Lesson1_Solved.zip)
+- [Lesson 3 — Solved](Solutions/Lesson3_Solved.zip)
+- [Lesson 4 — Solved](Solutions/Lesson4_Solved.zip)
+- [Lesson 5 — Solved](Solutions/Lesson5_Solved.zip)
+- [Lesson 6 — Solved](Solutions/Lesson6_Solved.zip)
+- [Lesson 6 — Starter Template](Solutions/Lesson6_Template.zip)
+- [Lesson 7 — Solved](Solutions/Lesson7_Solved.zip)
+- [Lesson 8 — Solved](Solutions/Lesson8_Solved.zip)
+- [Lesson 8 — Starter Template](Solutions/Lesson8_Template.zip)
+
+## Prerequisites
+
+- AutoCAD 2027 (64-bit)
+- ObjectARX 2027 SDK
+- Visual Studio 2026 with the "Desktop development with C++" workload
